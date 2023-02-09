@@ -20,7 +20,7 @@ import { USER_SIGNIN_REQUEST,
 const signin = (email, password) => async (dispatch) => {
     dispatch({ type: USER_SIGNIN_REQUEST, payload: { email, password } });
     try {
-      const { data } = await Axios.post(`http://localhost:5000/api/users/signin`, { email, password });
+      const { data } = await Axios.post(`https://backend-krishna.vercel.app/api/users/signin`, { email, password });
       dispatch({ type: USER_SIGNIN_SUCCESS, payload: data });
       localStorage.setItem('userSignin', JSON.stringify(data));
       Cookie.set('userSignin', JSON.stringify(data));
@@ -36,7 +36,7 @@ const signin = (email, password) => async (dispatch) => {
   const signup = (firstName,lastName, email, password) => async (dispatch) => {
     dispatch({ type: USER_REGISTER_REQUEST, payload: { firstName,lastName, email, password } });
     try {
-      const { data } = await Axios.post(`http://localhost:5000/api/users/register`, { firstName,lastName, email, password });
+      const { data } = await Axios.post(`https://backend-krishna.vercel.app/api/users/register`, { firstName,lastName, email, password });
       Cookie.set('userInfo', JSON.stringify(data));
       dispatch({ type: USER_REGISTER_SUCCESS, payload: data });
       dispatch({ type: USER_SIGNIN_SUCCESS, payload: data });
@@ -52,7 +52,7 @@ const signin = (email, password) => async (dispatch) => {
   const createClient = (clientName,clientId, gst, phoneNumber,address) => async (dispatch) => {
     dispatch({ type: USER_REGISTER_REQUEST, payload: { clientName,clientId, gst, phoneNumber,address } });
     try {
-      const { data } = await Axios.post(`http://localhost:5000/api/users/createClient`, { clientName,clientId, gst, phoneNumber,address});
+      const { data } = await Axios.post(`https://backend-krishna.vercel.app/api/users/createClient`, { clientName,clientId, gst, phoneNumber,address});
       
       dispatch({ type: USER_REGISTER_SUCCESS, payload: data });
      
@@ -71,7 +71,7 @@ const signin = (email, password) => async (dispatch) => {
     try {
       console.log(userId.toUpperCase());
 
-      const { data } = await Axios.get(`http://localhost:5000/api/users/${userId.toUpperCase()}`);
+      const { data } = await Axios.get(`https://backend-krishna.vercel.app/api/users/${userId.toUpperCase()}`);
       dispatch({ type: USER_DETAILS_SUCCESS, payload: data });
     } catch (error) {
       const message =
@@ -103,7 +103,7 @@ const listUsers = () => async (dispatch, getState) => {
   
   try {
     
-    const { data } = await Axios.get('http://localhost:5000/api/users/');
+    const { data } = await Axios.get('https://backend-krishna.vercel.app/api/users/');
     dispatch({ type: USER_LIST_SUCCESS, payload: data });
   } catch (error) {
     const message =
@@ -119,7 +119,7 @@ const deleteClient = (userId) => async (dispatch, getState) => {
   dispatch({ type: USER_DELETE_REQUEST, payload: userId });
   
   try {
-    const { data } = await Axios.delete(`http://localhost:5000/api/users/${userId}`);
+    const { data } = await Axios.delete(`https://backend-krishna.vercel.app/api/users/${userId}`);
     dispatch({ type: USER_DELETE_SUCCESS, payload: data });
   } catch (error) {
     const message =

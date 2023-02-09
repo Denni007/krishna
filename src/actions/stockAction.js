@@ -21,7 +21,7 @@ import { STOCK_SIGNIN_REQUEST,
   const createStock = (user) => async (dispatch) => {
     dispatch({ type: STOCK_CREATE_REQUEST, payload:  user  });
     try {
-      const { data } = await Axios.post(`http://localhost:5000/api/stock/createStock`, user);     
+      const { data } = await Axios.post(`https://backend-krishna.vercel.app/api/stock/createStock`, user);     
       dispatch({ type: STOCK_CREATE_SUCCESS, payload: data });
     } catch (error) {
       dispatch({ type: STOCK_CREATE_FAIL, payload:  error.response && error.response.data.message
@@ -37,7 +37,7 @@ import { STOCK_SIGNIN_REQUEST,
     try {
       console.log(userId.toUpperCase());
 
-      const { data } = await Axios.get(`http://localhost:5000/api/stock/${userId}`);
+      const { data } = await Axios.get(`https://backend-krishna.vercel.app/api/stock/${userId}`);
       dispatch({ type: STOCK_DETAILS_SUCCESS, payload: data });
     } catch (error) {
       const message =
@@ -53,7 +53,7 @@ import { STOCK_SIGNIN_REQUEST,
     dispatch({ type: STOCK_UPDATE_REQUEST, payload: user });
    
     try {
-      const { data } = await Axios.put(`http://localhost:5000/api/stock/updateStock`, user);
+      const { data } = await Axios.put(`https://backend-krishna.vercel.app/api/stock/updateStock`, user);
       dispatch({ type: STOCK_UPDATE_SUCCESS, payload: data });
     } catch (error) {
       const message =
@@ -67,7 +67,7 @@ import { STOCK_SIGNIN_REQUEST,
 const listStock = () => async (dispatch, getState) => {
   dispatch({ type: STOCK_LIST_REQUEST });
   try {
-    const { data } = await Axios.get('http://localhost:5000/api/stock/');
+    const { data } = await Axios.get('https://backend-krishna.vercel.app/api/stock/');
     dispatch({ type: STOCK_LIST_SUCCESS, payload: data });
   } catch (error) {
     const message =
@@ -83,7 +83,7 @@ const deleteStock = (userId) => async (dispatch, getState) => {
   dispatch({ type: STOCK_DELETE_REQUEST, payload: userId });
   
   try {
-    const { data } = await Axios.delete(`http://localhost:5000/api/stock/${userId}`);
+    const { data } = await Axios.delete(`https://backend-krishna.vercel.app/api/stock/${userId}`);
     dispatch({ type: STOCK_DELETE_SUCCESS, payload: data });
   } catch (error) {
     const message =
