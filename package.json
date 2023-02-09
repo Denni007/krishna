@@ -2,6 +2,7 @@
   "name": "@minimal/minimal-kit-react",
   "author": "minimals.cc",
   "version": "3.0.0",
+  "proxt":"https://backend-krishna.vercel.app/",
   "description": "Javascript Version",
   "private": true,
   "scripts": {
