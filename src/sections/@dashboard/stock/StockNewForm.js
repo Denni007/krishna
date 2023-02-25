@@ -111,11 +111,17 @@ console.log(currentDesign._id);
     }
     if (isEdit && successUpdate) {
       dispatch({ type:STOCK_UPDATE_RESET });
+      
       navigate(PATH_DASHBOARD.stock.list);
     }
     if (!loadingcreate && stock) {
+      dispatch({ type:STOCK_UPDATE_RESET });
 
       navigate(PATH_DASHBOARD.stock.list);
+    }
+    if (!stock || successUpdate) {
+      dispatch({ type: STOCK_UPDATE_RESET });
+      //  dispatch(detailsProduct(getValues('code')));
     }
     if (!isEdit) {
       reset(defaultValues);

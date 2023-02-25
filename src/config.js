@@ -5,7 +5,7 @@ import { PATH_DASHBOARD } from './routes/paths';
 // ----------------------------------------------------------------------
 
 export const HOST_API = process.env.REACT_APP_HOST_API_KEY || '';
-export const BACKEND_API = process.env.BACKEND_API || 'http://127.0.0.1:5000';
+export const BACKEND_API = process.env.NODE_ENV !== "development" ?process.env.BACKEND_API || 'https://krishna-alpha.vercel.app':"http://localhost:5000";
 
 export const FIREBASE_API = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,

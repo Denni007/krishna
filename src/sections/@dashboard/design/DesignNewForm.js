@@ -92,8 +92,10 @@ export default function DesignNewForm({ isEdit, currentDesign }) {
       navigate(PATH_DASHBOARD.design.list);
     }
     if (!loadingcreate && design) {
-
+     
+      reset(defaultValues);
       navigate(PATH_DASHBOARD.design.list);
+      
     }
     if (!isEdit) {
       reset(defaultValues);
@@ -121,7 +123,6 @@ export default function DesignNewForm({ isEdit, currentDesign }) {
         dispatch(createDesign(data.designName, data.designId, data.client, data.designRate));
         await new Promise((resolve) => setTimeout(resolve, 500));
         reset();
-       
         navigate(PATH_DASHBOARD.design.list);
 
       }

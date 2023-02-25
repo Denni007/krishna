@@ -1,5 +1,6 @@
 import Axios from "axios";
 import Cookie from 'js-cookie';
+import { BACKEND_API } from "../config";
 
 import { DESIGN_SIGNIN_REQUEST,
     DESIGN_UPDATE_PROFILE_FAIL,
@@ -20,7 +21,7 @@ import { DESIGN_SIGNIN_REQUEST,
 const signin = (email, password) => async (dispatch) => {
     dispatch({ type: DESIGN_SIGNIN_REQUEST, payload: { email, password } });
     try {
-      const { data } = await Axios.post(`https://backend-krishna.vercel.app/api/users/signin`, { email, password });
+      const { data } = await Axios.post(`${BACKEND_API}/api/users/signin`, { email, password });
       dispatch({ type: DESIGN_SIGNIN_SUCCESS, payload: data });
       localStorage.setItem('userSignin', JSON.stringify(data));
       Cookie.set('userSignin', JSON.stringify(data));
@@ -36,7 +37,7 @@ const signin = (email, password) => async (dispatch) => {
   const createDesign = (designName,designId, client, designRate) => async (dispatch) => {
     dispatch({ type: DESIGN_CREATE_REQUEST, payload: { designName,designId, client, designRate } });
     try {
-      const { data } = await Axios.post(`https://backend-krishna.vercel.app/api/design/createDesign`, { designName,designId, client, designRate});
+      const { data } = await Axios.post(`${BACKEND_API}/api/design/createDesign`, { designName,designId, client, designRate});
       
       dispatch({ type: DESIGN_CREATE_SUCCESS, payload: data });
      
@@ -55,7 +56,7 @@ const signin = (email, password) => async (dispatch) => {
     try {
       console.log(userId.toUpperCase());
 
-      const { data } = await Axios.get(`https://backend-krishna.vercel.app/api/design/${userId}`);
+      const { data } = await Axios.get(`${BACKEND_API}/api/design/${userId}`);
       dispatch({ type: DESIGN_DETAILS_SUCCESS, payload: data });
     } catch (error) {
       const message =
@@ -71,7 +72,7 @@ const signin = (email, password) => async (dispatch) => {
     dispatch({ type: DESIGN_UPDATE_REQUEST, payload: user });
    
     try {
-      const { data } = await Axios.put(`https://backend-krishna.vercel.app/api/design/updateDesign`, user);
+      const { data } = await Axios.put(`${BACKEND_API}/api/design/updateDesign`, user);
       dispatch({ type: DESIGN_UPDATE_SUCCESS, payload: data });
     } catch (error) {
       const message =
@@ -87,7 +88,7 @@ const listDesign = () => async (dispatch, getState) => {
   
   try {
     
-    const { data } = await Axios.get('https://backend-krishna.vercel.app/api/design/');
+    const { data } = await Axios.get(`${BACKEND_API}/api/design/`);
     dispatch({ type: DESIGN_LIST_SUCCESS, payload: data });
   } catch (error) {
     const message =
@@ -103,7 +104,7 @@ const deleteDesign = (userId) => async (dispatch, getState) => {
   dispatch({ type: DESIGN_DELETE_REQUEST, payload: userId });
   
   try {
-    const { data } = await Axios.delete(`https://backend-krishna.vercel.app/api/design/${userId}`);
+    const { data } = await Axios.delete(`${BACKEND_API}/api/design/${userId}`);
     dispatch({ type: DESIGN_DELETE_SUCCESS, payload: data });
   } catch (error) {
     const message =

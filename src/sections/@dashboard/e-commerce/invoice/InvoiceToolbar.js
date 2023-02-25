@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
-// import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
+import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Box, Tooltip, IconButton, DialogActions, Button } from '@mui/material';
@@ -54,7 +54,7 @@ export default function InvoiceToolbar({ invoice, ...other }) {
         Preview
       </Button>
 
-      {/* <PDFDownloadLink
+      <PDFDownloadLink
         document={<InvoicePDF invoice={invoice} />}
         fileName={`INVOICE-${invoice._id}`}
         style={{ textDecoration: 'none' }}
@@ -70,7 +70,7 @@ export default function InvoiceToolbar({ invoice, ...other }) {
             Download
           </LoadingButton>
         )}
-      </PDFDownloadLink> */}
+      </PDFDownloadLink>
 
       <DialogAnimate fullScreen open={openPDF}>
         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -88,9 +88,9 @@ export default function InvoiceToolbar({ invoice, ...other }) {
             </Tooltip>
           </DialogActions>
           <Box sx={{ flexGrow: 1, height: '100%', overflow: 'hidden' }}>
-            {/* <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+            <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
               <InvoicePDF invoice={invoice} />
-            </PDFViewer> */}
+            </PDFViewer>
           </Box>
         </Box>
       </DialogAnimate>

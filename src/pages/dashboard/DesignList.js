@@ -66,12 +66,12 @@ export default function UserList() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const clientDelete = useSelector((state) => state.clientDelete);
+  const designDelete = useSelector((state) => state.designDelete);
   const {
     loading: loadingDelete,
     error: errorDelete,
     success: successDelete,
-  } = clientDelete;
+  } = designDelete;
   useEffect(() => {
     if (successDelete) {
       enqueueSnackbar('Deletee success!'); 

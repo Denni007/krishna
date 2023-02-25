@@ -28,7 +28,7 @@ import {
   InputAdornment,
 } from '@mui/material';
 // form
-import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import { useForm, Controller, useFieldArray, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import { LoadingButton, MobileDatePicker } from '@mui/lab';
@@ -53,6 +53,7 @@ import AddCard from './add/AddCard';
 import AddActions from './add/AddActions';
 import AddNewCustomer from './add/AddNewCustomer';
 import { listStock } from '../../../../actions/stockAction';
+import { createInvoice } from '../../../../actions/invoiceActions';
 
 
 
@@ -73,7 +74,7 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
   const handleClose = () => {
     setOpen(false);
   };
- 
+
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
   const userList = useSelector((state) => state.userList);
@@ -86,6 +87,8 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
     invoiceNo: Yup.string().required('clientId is required'),
     invoiceDate: Yup.date().required('clientId is required'),
     invoiceStatus: Yup.string().required('invoiceStatus number is required'),
+    invoiceAmount: Yup.number().required('invoiceStatus number is required'),
+    invoiceDiscount: Yup.number().required('invoiceStatus number is required'),
     Items: Yup.array().of(
       Yup.object().shape({
         challanNo: Yup.string().required('Name is required'),
@@ -122,9 +125,13 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
     () => ({
       clientName: currentUser?.clientName || '',
       invoiceNo: currentUser?.invoiceNo || '',
-      invoiceDate: currentUser?.invoiceDate || new Date(),
-      invoiceStatus: currentUser?.invoiceStatus || 'unpaid',
-      Items: currentUser?.Items || dataitem
+      invoiceDate: currentUser?.invoiceDate || new Date(new Date().getTime() + (90 * 24 * 60 * 60 * 1000)),
+      invoiceStatus: currentUser?.invoiceStatus || 'Unpaid',
+      Items: currentUser?.Items || dataitem,
+      invoiceAmount: currentUser?.invoiceAmount || 0,
+      invoiceDiscount: currentUser?.invoiceDiscount || 5,
+      taxamount: currentUser?.taxamount || 0,
+      gst:currentUser?.gst || 0
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentUser]
@@ -142,8 +149,10 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
     setValue,
     getValues,
     handleSubmit,
+   
     formState: { isSubmitting },
   } = methods;
+
 
   const {
     fields: foodFields,
@@ -151,17 +160,53 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
     remove: foodRemove
   } = useFieldArray({ control, name: "Items" });
 
+  const items = useWatch({ control, name: "Items" });
+
+  const values = watch();
+  
+
   const [clients, setClients] = useState(users);
   const [filterName, setFilterName] = useState([]);
   const [stockData, setStockData] = useState([]);
-
-  const values = watch();
+  const [taxamount, setTaxamount] = useState('');
+  const [gst, setGst] = useState('');
   useEffect(() => {
-    if(values.Items[0].quantity>0){
-      console.log(values);
+    if (items[0].rate>0) {
+      const field1Sum = items.reduce((total, item) => {
+        return total + Number(item.amount);
+      }, 0);
+      //  setTaxamount(field1Sum % 5)
+      setValue('TotalAmount', field1Sum);
+      const txtamout =  field1Sum  - (field1Sum/100)*5;
+      const gst = (txtamout/100)*2.5
+      setTaxamount(Number(txtamout).toFixed(2));
+      setValue('taxamount',Number(txtamout).toFixed(2));
+      setValue('gst',Number(gst).toFixed(2));
+      setGst(Number(gst).toFixed(2));
+      setValue('invoiceAmount', Number(txtamout - Number((2*gst)).toFixed(2)));
     }
     
-  }, [values]);
+  }, [items, setValue]);
+  // useEffect(() => {
+  //   if(values.invoiceDiscount>0){
+     
+     
+  //   } 
+  // }, [values]);
+
+  const handleDiscount = useCallback(
+    (e) => {
+      setValue('invoiceDiscount',Number(e.target.value))
+
+      const field1Sum = items.reduce((total, item) => {
+        return total + Number(item.amount);
+      }, 0);
+      //  setValue('Discount', (field1Sum/100)* Number(e.target.value))
+      setTaxamount(Number(field1Sum/100)* Number(e.target.value))
+      setValue('invoiceAmount', Number(field1Sum-Number(taxamount)));
+    },
+    [ setValue]
+  );
 
   const clientUpdate = useSelector((state) => state.clientUpdate);
   const {
@@ -171,7 +216,7 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
   } = clientUpdate;
 
 
- 
+
 
   useEffect(() => {
     if (isEdit && currentUser) {
@@ -196,12 +241,9 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, currentUser, successUpdate, users, stocks]);
 
-  const onchallanchange = (data) => {
-
-  }
+  
 
   const onSubmit = async (data) => {
-    console.log(data);
     try {
       if (isEdit) {
         // dispatch(
@@ -210,11 +252,11 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
       }
       else {
 
-        // dispatch(createClient(data));
-        // await new Promise((resolve) => setTimeout(resolve, 500));
-        // reset();
+        dispatch(createInvoice(data));
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        reset();
 
-        // navigate(PATH_DASHBOARD.user.list);
+        navigate(PATH_DASHBOARD.invoice.list);
 
       }
       enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
@@ -222,6 +264,36 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
       console.error(error);
     }
   };
+
+  const handlePlain = useCallback(
+    (e, n) => {
+      setValue(`Items[${n}].plain`, Number(e.target.value));
+      setValue(`Items[${n}].amount`, items.map((e) => {
+        return (e.quantity - e.short - e.plain) * e.rate;
+      })[n]
+      );
+    },
+    [setValue, items]
+  );
+  const handleDesign = useCallback(
+    (e, index) => {
+      setValue(`Items[${index}].challanNo`, stocks?.filter((stocks) => stocks.challanNo === e.target.value)[0].challanNo)
+      setValue(`Items[${index}].challanDate`, stocks?.filter((stocks) => stocks.challanNo === e.target.value)[0].challanDate)
+      setValue(`Items[${index}].designId`, stocks?.filter((stocks) => stocks.challanNo === e.target.value)[0].designId, { shouldTouch: true })
+      setValue(`Items[${index}].rate`, stocks?.filter((stocks) => stocks.challanNo === e.target.value)[0].design.designRate, { shouldTouch: true })
+      setValue(`Items[${index}].quantity`, stocks?.filter((stocks) => stocks.challanNo === e.target.value)[0].stockQuantity, { shouldTouch: true })
+      setValue(`Items[${index}].short`, stocks?.filter((stocks) => stocks.challanNo === e.target.value)[0].Short, { shouldTouch: true })
+      setValue(`Items[${index}].amount`, items.map((e) => {
+        return (e.quantity - e.short - e.plain) * e.rate;
+      })[index]
+      );
+    },
+    [setValue, items]
+  );
+
+
+
+
 
   useEffect(() => {
 
@@ -234,20 +306,16 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <InvoiceToolbar invoice={_invoice} />
-      <Grid item xs={12}>
+      <Grid container xs={12}>
         <Card sx={{ p: 3 }}>
-       
+
 
 
           <Stack direction="row" divider={<Divider orientation="vertical" flexItem sx={{ ml: 5, mr: 2 }} />} alignContent="center" >
 
 
 
-            <Grid item xl={5} direction="column"
-              justifyContent="flex-end">
-
-
-
+            <Grid item xl={5} direction="column" justifyContent="flex-end">
               <Typography paragraph variant="overline" sx={{ color: 'text.disabled' }}>
                 Invoice from
               </Typography>
@@ -283,12 +351,12 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
                   <Autocomplete
                     {...field}
                     onChange={(event, value) => {
-                      
+
                       setValue('clientName', value);
                       setSelectedClient(filterName.filter((user) => user._id === value._id)[0]);
                       setStockData(stocks?.filter((stocks) => stocks.clientName === getValues('clientName').clientName))
                     }}
-                    onSelect={(e, v) => console.log(v)}
+                    onSelect={(e, v) => { }}
                     options={filterName.map((option) => option)}
                     filterOptions={
                       createFilterOptions({
@@ -306,8 +374,8 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
             <Grid item xs={6} md={3}>
               <RHFTextField
                 name="invoiceNo"
-                label="Design Id"
-                placeholder="Client ID"
+                label="Invoice No"
+                placeholder="Invoice No"
               />
             </Grid>
             <Grid item xs={6} md={3}>
@@ -326,7 +394,7 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
                         <Chip {...getTagProps({ index })} key={option} size="small" label={option} />
                       ))
                     }
-                    renderInput={(params) => <TextField label="Tags" {...params} />}
+                    renderInput={(params) => <TextField label="invoiceStatus" {...params} />}
                   />
                 )}
               />
@@ -353,28 +421,20 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
           </Grid>
           <Divider sx={{ mt: 2, mb: 2 }} />
 
-          <Box>
+          <Box >
             <Typography paragraph variant="subtitle" sx={{ color: 'text.disabled' }}>
               Details:
             </Typography>
             <Stack>
               {foodFields.map((item, index) => {
-                return (<Grid direction="column" justifyContent="flex-end">
-                  <Stack direction="row" spacing={2}>
-                    <Grid md={2}>
+                return (<Grid container direction="column" justifyContent="flex-end">
+                  <Grid container spacing={2} direction="row" >
+                    <Grid item md={2} xs={6} >
                       <RHFSelect size="small"
                         name={`Items[${index}].challanNo`}
                         label="Challan No"
                         onChange={
-                          (e) => {
-                            setValue(`Items[${index}].challanNo`, stocks?.filter((stocks) => stocks.challanNo === e.target.value)[0].challanNo)
-                            setValue(`Items[${index}].challanDate`, stocks?.filter((stocks) => stocks.challanNo === e.target.value)[0].challanDate)
-                            setValue(`Items[${index}].designId`, stocks?.filter((stocks) => stocks.challanNo === e.target.value)[0].designId, { shouldTouch: true })
-                            setValue(`Items[${index}].rate`, stocks?.filter((stocks) => stocks.challanNo === e.target.value)[0].design.designRate, { shouldTouch: true })
-                            setValue(`Items[${index}].quantity`, stocks?.filter((stocks) => stocks.challanNo === e.target.value)[0].stockQuantity, { shouldTouch: true })
-                            setValue(`Items[${index}].short`, stocks?.filter((stocks) => stocks.challanNo === e.target.value)[0].Short, { shouldTouch: true })
-                            setValue(`Items[${index}].amount`,(getValues(`Items[${index}].quantity`)-getValues(`Items[${index}].short`))*getValues(`Items[${index}].rate`), { shouldTouch: true })
-                          }}
+                          (e) => { handleDesign(e, index) }}
                         placeholder="Challan No">
                         <option value="" />
                         {!loadingStock ? stockData.map((option) => (
@@ -384,7 +444,7 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
                         )) : null}
                       </RHFSelect>
                     </Grid>
-                    <Grid md={2}>
+                    <Grid item md={2} xs={6}>
                       <Controller
                         name={`Items[${index}].challanDate`}
                         control={control}
@@ -404,7 +464,7 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
                         )}
                       />
                     </Grid>
-                    <Grid item md={2} key={item.id}>
+                    <Grid item md={2} xs={4} key={item.id}>
                       <RHFTextField
                         name={`Items[${index}].designId`}
                         size="small"
@@ -412,7 +472,28 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
                         focused
                       />
                     </Grid>
-                    <Grid item md={1} key={`Items[${index}].rate`}>
+                   
+
+                    <Grid item md={1} xs={4} key={`Items[${index}].short`}>
+                      <RHFTextField
+                        name={`Items[${index}].short`}
+                        size="small"
+                        type="number"
+                        label="Short"
+                        disabled
+                        autoFocus
+                      />
+                    </Grid>
+                    <Grid item md={1} xs={4} key={`Items[${index}].plain`}>
+                      <RHFTextField
+                        name={`Items[${index}].plain`}
+                        size="small"
+                        value={getValues(`Items[${index}].plain`) === 0 ? 0 : getValues(`Items[${index}].plain`)}
+                        onChange={(e) => { handlePlain(e, index) }}
+                        label="plain"
+                      />
+                    </Grid>
+                    <Grid item md={1} xs={4} key={`Items[${index}].rate`}>
                       <RHFTextField
                         name={`Items[${index}].rate`}
                         size="small"
@@ -420,39 +501,16 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
                         autoFocus
                       />
                     </Grid>
-                    <Grid item md={1} key={`Items[${index}].quantity`}>
+                    <Grid item md={1} xs={4} key={`Items[${index}].quantity`}>
                       <RHFTextField
                         name={`Items[${index}].quantity`}
                         size="small"
                         type="number"
+                        disabled
                         label="quantity"
-                        disabled 
                       />
                     </Grid>
-
-                    <Grid item md={1} key={`Items[${index}].short`}>
-                      <RHFTextField
-                        name={`Items[${index}].short`}
-                        size="small"
-                        type="number"
-                        label="Short"
-                        autoFocus
-                      />
-                    </Grid>
-                    <Grid item md={1} key={`Items[${index}].plain`}>
-                      <RHFTextField
-                        name={`Items[${index}].plain`}
-                        size="small"
-                        value={getValues(`Items[${index}].plain`) === 0 ?0:getValues(`Items[${index}].plain`)}
-                        onChange={(event) => {
-                          setValue(`Items[${index}].plain`, Number(event.target.value))
-                          setValue(`Items[${index}].amount`, (getValues(`Items[${index}].quantity`)-getValues(`Items[${index}].short`) - event.target.value )*getValues(`Items[${index}].rate`))
-                        }}
-
-                        label="plain"
-                      />
-                    </Grid>
-                    <Grid item md={1} key={`Items[${index}].designId`}>
+                    <Grid item md={2} xs={4} key={`Items[${index}].designId`}>
                       <RHFTextField
                         name={`Items[${index}].amount`}
                         size="small"
@@ -461,47 +519,152 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
                         InputProps={{
                           startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                           type: 'number',
-                        }}                        
+                        }}
                       />
                     </Grid>
-                  </Stack>
-                  <Grid><Button onClick={() => foodRemove(index)}>Delete</Button></Grid>
+                  </Grid>
+                  <Grid item spacing={2} alignContent="flex-end" >
+                    <Button
+                      color="error"
+                      size="small"
+                      variant="text"
+                      startIcon={<Iconify icon={'eva:trash-2-fill'} />}
+                      onClick={() => foodRemove(index)}>Delete</Button>
+                  </Grid>
+                  <Divider sx={{ mt: 2, mb: 2, borderStyle: "dashed" }} />
                 </Grid>)
               })}
 
-              <Divider sx={{ mt: 2, mb: 2 }} />
-
-              <Grid>
-                <Button
-
-                  color="info"
-                  size="small"
-                  variant="contained"
-                  disabled={stockData.length <= foodFields.length}
-                  startIcon={<Iconify icon={'eva:plus-fill'} />}
-                  onClick={() => {
-                    if (stockData.length > foodFields.length) {
-                      foodAppend({
-                        challanNo: 'jsona',
-                        challanDate: new Date(),
-                        designId: '',
-                        plain: 0,
-                        quantity: 0,
-                        rate: 0,
-                        short: 0,
-                        amount: 0,
-                      });
-                    }
-                    else {
-                      console.log('sorry');
-                    }
-                  }}>add to</Button>
-                   <Typography variant="h6">Total </Typography>
-                  
-              </Grid>
-
             </Stack>
-          </Box>
+          
+            </Box>
+         
+          <Stack spacing={2} direction={{xs:'column-reverse' ,md:"row" }} justifyContent="space-between" alignItems= {{xs: "flex-start", md: "center" }} >
+            <Button
+              color="info"
+              size="small"
+              variant="contained"
+              disabled={stockData.length <= foodFields.length}
+              startIcon={<Iconify icon={'eva:plus-fill'} />}
+              onClick={() => {
+                if (stockData.length > foodFields.length) {
+                  foodAppend({
+                    challanNo: 'jsona',
+                    challanDate: new Date(),
+                    designId: '',
+                    plain: 0,
+                    quantity: 0,
+                    rate: 0,
+                    short: 0,
+                    amount: 0,
+                  });
+                }
+                else {
+                  console.log('sorry');
+                }
+              }}>add to</Button>
+           <Stack spacing={2} direction="row" justifyContent="flex-end" >
+                      <RHFTextField
+                        name="invoiceDiscount"
+                        size="small"
+                        label="invoiceDiscount"
+                        onChange={(e) => { handleDiscount(e) }}
+                        InputProps={{
+                          startAdornment: <InputAdornment position="start">%</InputAdornment>,
+                          type: 'number',
+                        }}
+                      />
+                <RHFTextField
+                        name="TotalAmount"
+                        size="small"
+                        label="Total Amount"
+                        InputProps={{
+                          startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+                          type: 'number',
+                        }}
+                      />
+            </Stack>
+          </Stack>
+         
+          <Divider sx={{ mt: 2, mb: 2, borderStyle: "dashed" }} />
+
+
+
+
+
+
+
+         
+          <Stack direction="row" divider={<Divider orientation="vertical" flexItem sx={{ ml: 5, mr: 2 }} />} alignContent="center" >
+
+
+
+            <Grid item xl={5} direction="column" justifyContent="flex-end">
+              <Typography paragraph variant="overline" sx={{ color: 'text.disabled' }}>
+                Bank Info
+              </Typography>
+              <Typography variant="body2">Bank Name :  KOTAK MAHINDRA BANK</Typography>
+              <Typography variant="body2">BRANCH    :  PUNAGAM</Typography>
+              <Typography variant="body2">ACC. No.  :  25111253487</Typography>
+              <Typography variant="body2">IFSC CODE :  KKBK0000883</Typography>
+
+            </Grid>
+            {/* <Box component="span"> */}
+            {/* <Divider   orientation='vertical' sx={{ ml: 5, mr: 2 }} /> */}
+            {/* </Box> */}
+            <Grid item xl={7} direction="column" spacing={3}>
+            <Typography  paragraph variant="overline" sx={{ textAlign: "right",color: 'text.disabled' }}>
+                Amount Summary
+              </Typography>
+            <Grid item xs container justifyContent="flex-end" >
+              <Grid item xs={4} alignItems="flex-end">
+                <Typography variant="subtitle2" sx={{textAlign: "right"}}>Taxable Amount :</Typography>
+              </Grid>
+              <Grid item xs={2}>
+                <Typography variant="subtitle2" textAlign='right'>{taxamount}</Typography>
+              </Grid>
+            </Grid>
+            <Grid container justifyContent="flex-end" spacing={2}>
+              <Grid item xs={4}>
+                <Typography variant="subtitle2"   sx={{textAlign: "right"}}>CGST (2.50)% :</Typography>
+              </Grid>
+              <Grid item xs={2}>
+                <Typography variant="subtitle2" sx={{textAlign: "right"}}>{gst}</Typography>
+              </Grid>
+            </Grid>
+            <Grid container justifyContent="flex-end" spacing={2}>
+              <Grid item xs={4}>
+                <Typography variant="subtitle2"   sx={{textAlign: "right"}}>SGST (2.50)% :</Typography>
+              </Grid>
+              <Grid item xs={2}>
+                <Typography variant="subtitle2" sx={{textAlign: "right"}}>{gst}</Typography>
+              </Grid>
+            </Grid>
+            <Grid container justifyContent="flex-end" spacing={2}>
+              <Grid item xs={4}>
+                <Typography variant="subtitle2"   sx={{textAlign: "right"}}>Total GST :</Typography>
+              </Grid>
+              <Grid item xs={2}>
+                <Typography variant="subtitle2" sx={{textAlign: "right"}}>{gst*2}</Typography>
+              </Grid>
+            </Grid>
+            </Grid>
+
+          
+            
+            
+          </Stack>
+          <Divider sx={{ mt: 2, mb: 2, borderStyle: "dashed" }} />
+            <Grid container direction="row" justifyContent="space-between" alignItems="center">
+              <Grid item xs={2}>
+                <Typography variant="h6" sx={{textAlign: "right"}}>Total price :</Typography>
+              </Grid>
+              <Grid item xs={1}>
+                <Typography variant="h6" textAlign='right'>{getValues('invoiceAmount') > 0 ? getValues('invoiceAmount') : 0}</Typography>
+              </Grid>
+            </Grid>
+         
+
           <Stack alignItems="flex-end" sx={{ mt: 3 }}>
             <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
               {!isEdit ? 'Create User' : 'Save Changes'}

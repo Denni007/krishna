@@ -117,7 +117,7 @@ export default function UserNewForm({ isEdit, currentUser }) {
         await new Promise((resolve) => setTimeout(resolve, 500));
         reset();
       }
-        enqueueSnackbar(!isEdit && userInfo.length>0 ? 'Create success!' : 'Update success!'); 
+      enqueueSnackbar(!isEdit && userInfo.length>0 ? 'Create success!' : 'Update success!'); 
       
     } catch (error) {
       console.error(error);

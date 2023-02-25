@@ -14,6 +14,7 @@ import productReducer from './slices/product';
 import calendarReducer from './slices/calendar';
 import kanbanReducer from './slices/kanban';
 import { designCreateReducer, designDeleteReducer, designDetailReducer, designListReducer, designUpdateReducer } from '../reducers/designReducers';
+import { invoiceCreateReducer, invoiceDeleteReducer, invoiceDetailReducer, invoiceListReducer, invoiceUpdateReducer } from '../reducers/invoiceReducers';
 
 // ----------------------------------------------------------------------
 
@@ -49,7 +50,6 @@ const rootReducer = combineReducers({
   calendar: calendarReducer,
   kanban: kanbanReducer,
   userSignin:  persistReducer(userPersistConfig, userSigninReducer),
- 
   userList: userListReducer,
   designList: designListReducer,
   designCreate : designCreateReducer,
@@ -61,6 +61,12 @@ const rootReducer = combineReducers({
   stockDelete:stockDeleteReducer,
   stockDetail : stockDetailReducer,
   stockUpdate:stockUpdateReducer, 
+
+  invoiceList: invoiceListReducer,
+  invoiceCreate : invoiceCreateReducer,
+  invoiceDelete:invoiceDeleteReducer,
+  invoiceDetail : invoiceDetailReducer,
+  invoiceUpdate:invoiceUpdateReducer, 
   clientCreate : clientCreateReducer,
   clientDetail : clientDetailReducer,
   clientUpdate : clientUpdateReducer,

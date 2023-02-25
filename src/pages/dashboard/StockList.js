@@ -198,7 +198,7 @@ export default function UserList() {
                 />
                 <TableBody>
                   {!loading && filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { _id, challanNo, challanDate, designId, designName, design,stockQuantity,Short,clientId } = row;
+                    const { _id, challanNo, challanDate, designId, designName, design,stockQuantity,Short,clientId,client } = row;
                     const isItemSelected = selected.indexOf(challanNo) !== -1;
 
                     return (
@@ -232,7 +232,7 @@ export default function UserList() {
                       </Typography>
                           </TableCell>
                         <TableCell align="left">
-                        <Typography variant="subtitle2">{row.client.clientName}</Typography>
+                        <Typography variant="subtitle2">{row.clientName}</Typography>
                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                        {clientId}
                       </Typography>
