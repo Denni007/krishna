@@ -85,6 +85,7 @@ export default function Router() {
             { path: 'checkout', element: <EcommerceCheckout /> },
             { path: 'invoice/', element: <EcommerceInvoice /> },
             { path: 'invoice/new', element: <InvoiceCreate/> },
+            { path: 'invoice/list', element: <InvoiceList/> },
           ],
         },
         {
@@ -117,6 +118,19 @@ export default function Router() {
             { path: ':name/edit', element: <StockCreate /> },
           ],
         },
+        {
+          path: 'invoice',
+          children: [
+            { element: <Navigate to="/dashboard/invoice/profile" replace />, index: true },
+            { path: 'list', element: <InvoiceList /> },
+            { path: 'new', element: <InvoiceCreate /> },
+            { path: ':id', element: <InvoiceDetailPage /> },
+            // { path: ':name/edit', element: <InvoiceCreate  /> },
+            { path: ':id/edit', element: <InvoiceEditPage /> },
+
+          ],
+        },
+       
         {
           path: 'blog',
           children: [
@@ -202,7 +216,10 @@ const EcommerceProductEdit = Loadable(lazy(() => import('../pages/dashboard/Ecom
 
 const EcommerceInvoice = Loadable(lazy(() => import('../pages/dashboard/EcommerceInvoice')));
 const EcommerceInvoiceEdit = Loadable(lazy(() => import('../pages/dashboard/EcommerceInvoiceEdit')));
-const InvoiceCreate = Loadable(lazy(() => import('../pages/dashboard/InvoiceCreate')));
+const InvoiceCreate = Loadable(lazy(() => import('../pages/dashboard/InvoiceCreatePage')));
+const InvoiceList = Loadable(lazy(() => import('../pages/dashboard/InvoiceListPage')));
+const InvoiceEditPage = Loadable(lazy(() => import('../pages/dashboard/InvoiceEditPage')));
+const InvoiceDetailPage = Loadable(lazy(() => import('../pages/dashboard/InvoiceDetailsPage')));
 
 const BlogPosts = Loadable(lazy(() => import('../pages/dashboard/BlogPosts')));
 const BlogPost = Loadable(lazy(() => import('../pages/dashboard/BlogPost')));

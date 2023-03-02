@@ -53,7 +53,7 @@ import AddCard from './add/AddCard';
 import AddActions from './add/AddActions';
 import AddNewCustomer from './add/AddNewCustomer';
 import { listStock } from '../../../../actions/stockAction';
-import { createInvoice } from '../../../../actions/invoiceActions';
+import { createInvoice, listInvoice } from '../../../../actions/invoiceActions';
 
 
 
@@ -88,7 +88,7 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
     invoiceDate: Yup.date().required('clientId is required'),
     invoiceStatus: Yup.string().required('invoiceStatus number is required'),
     invoiceAmount: Yup.number().required('invoiceStatus number is required'),
-    invoiceDiscount: Yup.number().required('invoiceStatus number is required'),
+    invoiceDiscount: Yup.boolean().required('invoiceStatus number is required'),
     Items: Yup.array().of(
       Yup.object().shape({
         challanNo: Yup.string().required('Name is required'),
@@ -105,7 +105,7 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
   });
 
   const [addCustomerOpen, setAddCustomerOpen] = useState(false)
-  const [selectedClient, setSelectedClient] = useState(null)
+  const [selectedClient, setSelectedClient] = useState(currentUser?.clientName || null)
   const toggleAddCustomerDrawer = () => setAddCustomerOpen(!addCustomerOpen)
 
   const INVOICE_STATUS = ['Unpaid', 'Paid'];
@@ -129,9 +129,10 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
       invoiceStatus: currentUser?.invoiceStatus || 'Unpaid',
       Items: currentUser?.Items || dataitem,
       invoiceAmount: currentUser?.invoiceAmount || 0,
-      invoiceDiscount: currentUser?.invoiceDiscount || 5,
+      invoiceDiscount: currentUser?.invoiceDiscount || true,
       taxamount: currentUser?.taxamount || 0,
-      gst:currentUser?.gst || 0
+      TotalAmount: currentUser?.TotalAmount || 0,
+      gst: currentUser?.gst || 0
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentUser]
@@ -149,7 +150,7 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
     setValue,
     getValues,
     handleSubmit,
-   
+
     formState: { isSubmitting },
   } = methods;
 
@@ -163,49 +164,98 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
   const items = useWatch({ control, name: "Items" });
 
   const values = watch();
-  
+
 
   const [clients, setClients] = useState(users);
   const [filterName, setFilterName] = useState([]);
-  const [stockData, setStockData] = useState([]);
+  const [stockData, setStockData] = useState(currentUser?.Items?.challanNo || []);
   const [taxamount, setTaxamount] = useState('');
   const [gst, setGst] = useState('');
   useEffect(() => {
-    if (items[0].rate>0) {
+    if (items[0].rate > 0) {
       const field1Sum = items.reduce((total, item) => {
         return total + Number(item.amount);
       }, 0);
       //  setTaxamount(field1Sum % 5)
       setValue('TotalAmount', field1Sum);
-      const txtamout =  field1Sum  - (field1Sum/100)*5;
-      const gst = (txtamout/100)*2.5
-      setTaxamount(Number(txtamout).toFixed(2));
-      setValue('taxamount',Number(txtamout).toFixed(2));
-      setValue('gst',Number(gst).toFixed(2));
-      setGst(Number(gst).toFixed(2));
-      setValue('invoiceAmount', Number(txtamout - Number((2*gst)).toFixed(2)));
+      console.log(values.invoiceDiscount)
+      if (values.invoiceDiscount) {
+        const txtamout = field1Sum - (field1Sum / 100) * 5;
+        const gst = (txtamout / 100) * 2.5
+        setTaxamount(Number(txtamout).toFixed(2));
+        setValue('taxamount', Number(txtamout).toFixed(2));
+        setValue('gst', Number(gst).toFixed(2));
+        setGst(Number(gst).toFixed(2));
+        setValue('invoiceAmount', Number(txtamout + 2 * gst).toFixed(2));
+      }
+      else {
+        const txtamout = field1Sum - (field1Sum / 100);
+        const gst = (txtamout / 100) * 2.5
+        setTaxamount(Number(txtamout).toFixed(2));
+        setValue('taxamount', Number(txtamout).toFixed(2));
+        setValue('gst', Number(gst).toFixed(2));
+        setGst(Number(gst).toFixed(2));
+        setValue('invoiceAmount', Number(txtamout + 2 * gst).toFixed(2));
+      }
+
     }
     
+
   }, [items, setValue]);
+
+
+  useEffect(() => {
+    if (items[0].rate > 0 && values.invoiceDiscount) {
+      // const field1Sum = items.reduce((total, item) => {
+      //   return total + Number(item.amount);
+      // }, 0);
+      // //  setTaxamount(field1Sum % 5)
+      // setValue('TotalAmount', field1Sum);
+      console.log(values.invoiceDiscount)
+      // const txtamout = field1Sum - (field1Sum / 100) * 5;
+      // const gst = (txtamout / 100) * 2.5
+      // setTaxamount(Number(txtamout).toFixed(2));
+      // setValue('taxamount', Number(txtamout).toFixed(2));
+      // setValue('gst', Number(gst).toFixed(2));
+      // setGst(Number(gst).toFixed(2));
+      // setValue('invoiceAmount', Number(txtamout + 2 * gst).toFixed(2));
+    }
+    else {
+      // const field1Sum = items.reduce((total, item) => {
+      //   return total + Number(item.amount);
+      // }, 0);
+      //  setTaxamount(field1Sum % 5)
+      // setValue('TotalAmount', field1Sum);
+      console.log(values.invoiceDiscount)
+      // const txtamout = field1Sum - (field1Sum / 100);
+      // const gst = (txtamout / 100) * 2.5
+      // setTaxamount(Number(txtamout).toFixed(2));
+      // setValue('taxamount', Number(txtamout).toFixed(2));
+      // setValue('gst', Number(gst).toFixed(2));
+      // setGst(Number(gst).toFixed(2));
+      // setValue('invoiceAmount', Number(txtamout + 2 * gst).toFixed(2));
+    }
+    
+}, []);
   // useEffect(() => {
   //   if(values.invoiceDiscount>0){
-     
-     
+
+
   //   } 
   // }, [values]);
 
   const handleDiscount = useCallback(
     (e) => {
-      setValue('invoiceDiscount',Number(e.target.value))
+      setValue('invoiceDiscount', Number(e.target.value))
 
       const field1Sum = items.reduce((total, item) => {
         return total + Number(item.amount);
       }, 0);
       //  setValue('Discount', (field1Sum/100)* Number(e.target.value))
-      setTaxamount(Number(field1Sum/100)* Number(e.target.value))
-      setValue('invoiceAmount', Number(field1Sum-Number(taxamount)));
+      setTaxamount(Number(field1Sum / 100) * Number(e.target.value))
+      setValue('invoiceAmount', Number(field1Sum - Number(taxamount)));
     },
-    [ setValue]
+    [setValue]
   );
 
   const clientUpdate = useSelector((state) => state.clientUpdate);
@@ -234,14 +284,13 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
       setClients(users);
     }
     if (getValues('clientName').length > 0 && !loadingStock) {
-      console.log(getValues('clientName'))
       const datas = stocks.filter((stocks) => stocks.clientName === getValues('clientName').clientName)
       setStockData(datas)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, currentUser, successUpdate, users, stocks]);
 
-  
+
 
   const onSubmit = async (data) => {
     try {
@@ -351,7 +400,6 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
                   <Autocomplete
                     {...field}
                     onChange={(event, value) => {
-
                       setValue('clientName', value);
                       setSelectedClient(filterName.filter((user) => user._id === value._id)[0]);
                       setStockData(stocks?.filter((stocks) => stocks.clientName === getValues('clientName').clientName))
@@ -430,18 +478,48 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
                 return (<Grid container direction="column" justifyContent="flex-end">
                   <Grid container spacing={2} direction="row" >
                     <Grid item md={2} xs={6} >
+                      {/* <Controller
+                      size="small"
+                       name={`Items[${index}].challanNo`}
+                       label="Challan No"
+                        control={control}
+                        render={({ field }) => (
+                          <Autocomplete
+                            {...field}
+                            onChange={(event, value) => {
+                              setValue(`Items[${index}].challanNo`, value);
+                              //  setSelectedClient(filterName.filter((user) => user._id === value._id)[0]);
+                             // setStockData(stocks?.filter((stocks) => stocks.clientName === getValues('clientName').clientName))
+                            }}
+                            onSelect={(e, v) => { }}
+                            options={
+                              !loadingStock?stocks?.filter((stocks) => stocks.clientName === getValues('clientName').clientName).map((option) => option):''
+                             }
+                            filterOptions={
+                              createFilterOptions({
+                                stringify: (option) => option.challanNo + option._id,
+                              })
+                            }
+                            getOptionLabel={(option) => option.challanNo || ''}
+                            value={getValues(`Items[${index}].challanNo`)}
+                            renderInput={(params) => <TextField label="Client" {...params} />}
+                          />
+                        )}
+                      /> */}
                       <RHFSelect size="small"
                         name={`Items[${index}].challanNo`}
                         label="Challan No"
                         onChange={
                           (e) => { handleDesign(e, index) }}
                         placeholder="Challan No">
+                          
                         <option value="" />
-                        {!loadingStock ? stockData.map((option) => (
+                        {!loadingStock ? stocks?.filter((stocks) => stocks.clientName === getValues('clientName').clientName).map((option) => (
                           <option key={option.challanNo} value={option.challanNo}>
                             {option.challanNo}
                           </option>
                         )) : null}
+                        
                       </RHFSelect>
                     </Grid>
                     <Grid item md={2} xs={6}>
@@ -472,7 +550,7 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
                         focused
                       />
                     </Grid>
-                   
+
 
                     <Grid item md={1} xs={4} key={`Items[${index}].short`}>
                       <RHFTextField
@@ -536,10 +614,10 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
               })}
 
             </Stack>
-          
-            </Box>
-         
-          <Stack spacing={2} direction={{xs:'column-reverse' ,md:"row" }} justifyContent="space-between" alignItems= {{xs: "flex-start", md: "center" }} >
+
+          </Box>
+
+          <Stack spacing={2} direction={{ xs: 'column-reverse', md: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", md: "center" }} >
             <Button
               color="info"
               size="small"
@@ -563,8 +641,8 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
                   console.log('sorry');
                 }
               }}>add to</Button>
-           <Stack spacing={2} direction="row" justifyContent="flex-end" >
-                      <RHFTextField
+            <Stack spacing={2} direction="row" justifyContent="flex-end" >
+              {/* <RHFTextField
                         name="invoiceDiscount"
                         size="small"
                         label="invoiceDiscount"
@@ -573,19 +651,30 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
                           startAdornment: <InputAdornment position="start">%</InputAdornment>,
                           type: 'number',
                         }}
-                      />
-                <RHFTextField
-                        name="TotalAmount"
-                        size="small"
-                        label="Total Amount"
-                        InputProps={{
-                          startAdornment: <InputAdornment position="start">₹</InputAdornment>,
-                          type: 'number',
-                        }}
-                      />
+                      /> */}
+              <RHFSwitch
+                name="invoiceDiscount"
+                size="small"
+                label="invoiceDiscount"
+               // checked={getValues('invoiceDiscount')}
+                onChange={(event) => console.log(event)}
+                // InputProps={{
+                //   startAdornment: <InputAdornment position="start">%</InputAdornment>,
+                //   type: 'number',
+                // }}
+              />
+              <RHFTextField
+                name="TotalAmount"
+                size="small"
+                label="Total Amount"
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+                  type: 'number',
+                }}
+              />
             </Stack>
           </Stack>
-         
+
           <Divider sx={{ mt: 2, mb: 2, borderStyle: "dashed" }} />
 
 
@@ -594,7 +683,7 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
 
 
 
-         
+
           <Stack direction="row" divider={<Divider orientation="vertical" flexItem sx={{ ml: 5, mr: 2 }} />} alignContent="center" >
 
 
@@ -613,57 +702,57 @@ export default function InvoiceNewForm({ isEdit, currentUser }) {
             {/* <Divider   orientation='vertical' sx={{ ml: 5, mr: 2 }} /> */}
             {/* </Box> */}
             <Grid item xl={7} direction="column" spacing={3}>
-            <Typography  paragraph variant="overline" sx={{ textAlign: "right",color: 'text.disabled' }}>
+              <Typography paragraph variant="overline" sx={{ textAlign: "right", color: 'text.disabled' }}>
                 Amount Summary
               </Typography>
-            <Grid item xs container justifyContent="flex-end" >
-              <Grid item xs={4} alignItems="flex-end">
-                <Typography variant="subtitle2" sx={{textAlign: "right"}}>Taxable Amount :</Typography>
+              <Grid item xs container justifyContent="flex-end" >
+                <Grid item xs={4} alignItems="flex-end">
+                  <Typography variant="subtitle2" sx={{ textAlign: "right" }}>Taxable Amount :</Typography>
+                </Grid>
+                <Grid item xs={2}>
+                  <Typography variant="subtitle2" textAlign='right'>{taxamount}</Typography>
+                </Grid>
               </Grid>
-              <Grid item xs={2}>
-                <Typography variant="subtitle2" textAlign='right'>{taxamount}</Typography>
+              <Grid container justifyContent="flex-end" spacing={2}>
+                <Grid item xs={4}>
+                  <Typography variant="subtitle2" sx={{ textAlign: "right" }}>CGST (2.50)% :</Typography>
+                </Grid>
+                <Grid item xs={2}>
+                  <Typography variant="subtitle2" sx={{ textAlign: "right" }}>{gst}</Typography>
+                </Grid>
               </Grid>
-            </Grid>
-            <Grid container justifyContent="flex-end" spacing={2}>
-              <Grid item xs={4}>
-                <Typography variant="subtitle2"   sx={{textAlign: "right"}}>CGST (2.50)% :</Typography>
+              <Grid container justifyContent="flex-end" spacing={2}>
+                <Grid item xs={4}>
+                  <Typography variant="subtitle2" sx={{ textAlign: "right" }}>SGST (2.50)% :</Typography>
+                </Grid>
+                <Grid item xs={2}>
+                  <Typography variant="subtitle2" sx={{ textAlign: "right" }}>{gst}</Typography>
+                </Grid>
               </Grid>
-              <Grid item xs={2}>
-                <Typography variant="subtitle2" sx={{textAlign: "right"}}>{gst}</Typography>
+              <Grid container justifyContent="flex-end" spacing={2}>
+                <Grid item xs={4}>
+                  <Typography variant="subtitle2" sx={{ textAlign: "right" }}>Total GST :</Typography>
+                </Grid>
+                <Grid item xs={2}>
+                  <Typography variant="subtitle2" sx={{ textAlign: "right" }}>{gst * 2}</Typography>
+                </Grid>
               </Grid>
-            </Grid>
-            <Grid container justifyContent="flex-end" spacing={2}>
-              <Grid item xs={4}>
-                <Typography variant="subtitle2"   sx={{textAlign: "right"}}>SGST (2.50)% :</Typography>
-              </Grid>
-              <Grid item xs={2}>
-                <Typography variant="subtitle2" sx={{textAlign: "right"}}>{gst}</Typography>
-              </Grid>
-            </Grid>
-            <Grid container justifyContent="flex-end" spacing={2}>
-              <Grid item xs={4}>
-                <Typography variant="subtitle2"   sx={{textAlign: "right"}}>Total GST :</Typography>
-              </Grid>
-              <Grid item xs={2}>
-                <Typography variant="subtitle2" sx={{textAlign: "right"}}>{gst*2}</Typography>
-              </Grid>
-            </Grid>
             </Grid>
 
-          
-            
-            
+
+
+
           </Stack>
           <Divider sx={{ mt: 2, mb: 2, borderStyle: "dashed" }} />
-            <Grid container direction="row" justifyContent="space-between" alignItems="center">
-              <Grid item xs={2}>
-                <Typography variant="h6" sx={{textAlign: "right"}}>Total price :</Typography>
-              </Grid>
-              <Grid item xs={1}>
-                <Typography variant="h6" textAlign='right'>{getValues('invoiceAmount') > 0 ? getValues('invoiceAmount') : 0}</Typography>
-              </Grid>
+          <Grid container direction="row" justifyContent="space-between" alignItems="center">
+            <Grid item xs={2}>
+              <Typography variant="h6" sx={{ textAlign: "right" }}>Total price :</Typography>
             </Grid>
-         
+            <Grid item xs={1}>
+              <Typography variant="h6" textAlign='right'>{getValues('invoiceAmount') > 0 ? getValues('invoiceAmount') : 0}</Typography>
+            </Grid>
+          </Grid>
+
 
           <Stack alignItems="flex-end" sx={{ mt: 3 }}>
             <LoadingButton type="submit" variant="contained" loading={isSubmitting}>

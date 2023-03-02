@@ -5,7 +5,7 @@ import { Box, Link, ListItemText } from '@mui/material';
 //
 import Iconify from '../../Iconify';
 import { ListItemStyle, ListItemTextStyle, ListItemIconStyle } from './style';
-import { isExternalLink } from '..';
+// import { isExternalLink } from '..';
 
 // ----------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ export function NavItemRoot({ item, isCollapse, open = false, active, onOpen }) 
     );
   }
 
-  return isExternalLink(path) ? (
+  return true ? (
     <ListItemStyle component={Link} href={path} target="_blank" rel="noopener">
       {renderContent}
     </ListItemStyle>
@@ -92,7 +92,7 @@ export function NavItemSub({ item, open = false, active = false, onOpen }) {
     );
   }
 
-  return isExternalLink(path) ? (
+  return true ? (
     <ListItemStyle component={Link} href={path} target="_blank" rel="noopener" subItem>
       {renderContent}
     </ListItemStyle>

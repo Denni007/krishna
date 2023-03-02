@@ -33,10 +33,10 @@ import { INVOICE_SIGNIN_REQUEST,
   
   
   
-  const invoiceDetails = (userId) => async (dispatch, getState) => {
+  const invoiceDetail = (userId) => async (dispatch, getState) => {
   
     try {
-      console.log(userId.toUpperCase());
+      dispatch({ type: INVOICE_DETAILS_REQUEST, payload: userId });
 
       const { data } = await Axios.get(`${BACKEND_API}/api/invoice/${userId}`);
       dispatch({ type: INVOICE_DETAILS_SUCCESS, payload: data });
@@ -50,11 +50,11 @@ import { INVOICE_SIGNIN_REQUEST,
   };
 
 
-  const updateStock = (user) => async (dispatch, getState) => {
+  const updateInvoice = (user) => async (dispatch, getState) => {
     dispatch({ type: INVOICE_UPDATE_REQUEST, payload: user });
    
     try {
-      const { data } = await Axios.put(`${BACKEND_API}/api/invoice/updateStock`, user);
+      const { data } = await Axios.put(`${BACKEND_API}/api/invoice/updateInvoice`, user);
       dispatch({ type: INVOICE_UPDATE_SUCCESS, payload: data });
     } catch (error) {
       const message =
@@ -65,7 +65,7 @@ import { INVOICE_SIGNIN_REQUEST,
     }
   }
  
-const listStock = () => async (dispatch, getState) => {
+const listInvoice = () => async (dispatch, getState) => {
   dispatch({ type: INVOICE_LIST_REQUEST });
   try {
     const { data } = await Axios.get(`${BACKEND_API}/api/invoice/`);
@@ -80,7 +80,7 @@ const listStock = () => async (dispatch, getState) => {
 };
 
 
-const deleteStock = (userId) => async (dispatch, getState) => {
+const deleteInvoice = (userId) => async (dispatch, getState) => {
   dispatch({ type: INVOICE_DELETE_REQUEST, payload: userId });
   
   try {
@@ -100,4 +100,4 @@ const deleteStock = (userId) => async (dispatch, getState) => {
   
 
   
-  export { createInvoice,invoiceDetails ,updateStock,deleteStock,listStock};
+  export { createInvoice,invoiceDetail ,updateInvoice,deleteInvoice,listInvoice};

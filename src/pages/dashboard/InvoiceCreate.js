@@ -16,7 +16,7 @@ import Page from '../../components/Page';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 // sections
 import InvoiceNewForm from '../../sections/@dashboard/e-commerce/invoice/InvoiceNewForm';
-import { stockDetails } from '../../actions/stockAction';
+import { invoiceDetails } from '../../actions/invoiceActions';
 
 // ----------------------------------------------------------------------
 
@@ -24,13 +24,13 @@ export default function UserCreate() {
   const { themeStretch } = useSettings();
   const { pathname } = useLocation();
   const { name = '' } = useParams();
-  // const stockDetail = useSelector((state) => state.stockDetail);
-  // const { loading, error, stock  } = stockDetail;
+  const invoiceDetail = useSelector((state) => state.invoiceDetail);
+  const { loading, error, invoice  } = invoiceDetail;
   const isEdit = pathname.includes('edit');
   const dispatch = useDispatch();
   useEffect(() => {
-   
-    dispatch(stockDetails(name));
+   console.log(name);
+    dispatch(invoiceDetails(name));
     
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
@@ -38,17 +38,17 @@ export default function UserCreate() {
   // const currentUser = _userList.find((user) => paramCase(user.name) === name);
 
   return (
-    <Page title="User: Create a new user">
+    <Page title="Invoice: Create a new Invoice">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
-          heading={!isEdit ? 'Create a new user' : 'Edit user'}
+          heading={!isEdit ? 'Create a new Invoice' : 'Edit Invoice'}
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'Stock', href: PATH_DASHBOARD.stock.list },
+            { name: 'Invoice', href: PATH_DASHBOARD.invoice.list },
             { name: !isEdit ? 'New Stock' : capitalCase(name) },
           ]}
         />
-    <InvoiceNewForm isEdit={isEdit} currentDesign={'stock'} /> 
+    <InvoiceNewForm isEdit={isEdit} currentUser={invoice} /> 
 
         
       </Container>

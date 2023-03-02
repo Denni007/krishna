@@ -48,7 +48,7 @@ export default function UserCreate() {
             { name: !isEdit ? 'New user' : capitalCase(name) },
           ]}
         />
- { !loading && <UserNewForm isEdit={isEdit} currentUser={client} />} 
+  { !loading && <UserNewForm isEdit={isEdit} currentUser={client} />} 
 
         
       </Container>
