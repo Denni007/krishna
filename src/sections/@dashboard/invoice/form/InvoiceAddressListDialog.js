@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+
 // @mui
 import {
   Stack,
@@ -13,6 +15,8 @@ import {
 // components
 import Iconify from '../../../../components/iconify2';
 import SearchNotFound from '../../../../components/search-not-found';
+import LoadingButton from '../../../../theme/overrides/LoadingButton';
+import { PATH_DASHBOARD } from '../../../../routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -55,12 +59,14 @@ export default function InvoiceAddressListDialog({
         justifyContent="space-between"
         sx={{ pt: 2.5, px: 3 }}
       >
-        <Typography variant="h6"> Select address </Typography>
-
+       
         <Button
           size="small"
+          component={RouterLink}
+          to={PATH_DASHBOARD.user.newUser}
           startIcon={<Iconify icon="eva:plus-fill" />}
           sx={{ alignSelf: 'flex-end' }}
+          
         >
           Add New
         </Button>

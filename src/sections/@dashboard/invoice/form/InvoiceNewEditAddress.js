@@ -132,20 +132,15 @@ export default function InvoiceNewEditAddress() {
           >
             {invoiceTo ? 'Change' : 'Add'}
           </Button>
-          {!loadingclient && users ?
+          
+          {!loadingclient && users &&
             <InvoiceAddressListDialog
               open={openTo}
               onClose={handleCloseTo}
               selected={(selectedId) => invoiceTo?._id === selectedId}
               onSelect={(address) => setValue('invoiceTo', address)}
               addressOptions={users}
-            /> : <Button
-              size="small"
-              startIcon={<Iconify icon={invoiceTo ? 'eva:edit-fill' : 'eva:plus-fill'} />}
-              onClick={handleOpenTo}
-            >
-              {invoiceTo ? 'Change' : 'Add'}
-            </Button>
+            /> 
           }
 
         </Stack>

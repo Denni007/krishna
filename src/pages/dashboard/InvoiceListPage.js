@@ -47,7 +47,7 @@ import {
 // sections
 import InvoiceAnalytic from '../../sections/@dashboard/invoice/InvoiceAnalytic';
 import { InvoiceTableRow, InvoiceTableToolbar } from '../../sections/@dashboard/invoice/list';
-import { listInvoice } from '../../actions/invoiceActions';
+import { deleteInvoice, listInvoice } from '../../actions/invoiceActions';
 import { INVOICE_DELETE_RESET } from '../../constants/invoiceConstants';
 
 // ----------------------------------------------------------------------
@@ -103,6 +103,7 @@ export default function InvoiceListPage() {
   const [tableData, setTableData] = useState([]);
 
   const [filterName, setFilterName] = useState('');
+  const [optionName, setOptionName] = useState([]);
 
   const [openConfirm, setOpenConfirm] = useState(false);
 
@@ -137,6 +138,7 @@ export default function InvoiceListPage() {
   useEffect(() => {
     if (!loading && invoices) {
         setTableData(invoices); 
+        setOptionName(invoices.map((option) => option.invoiceTo.clientName))
         // dispatch({ type: INVOICE_DELETE_RESET });
       }
           
@@ -173,14 +175,22 @@ export default function InvoiceListPage() {
     (!dataFiltered.length && !!filterStartDate);
 
   const getLengthByStatus = (status) => tableData.filter((item) => item.status === status).length;
-
   const getTotalPriceByStatus = (status) =>
     sumBy(
       tableData.filter((item) => item.status === status),
       'invoiceAmount'
     );
+    console.log(getTotalPriceByStatus('unpaid'))
 
   const getPercentByStatus = (status) => (getLengthByStatus(status) / tableData.length) * 100;
+
+  const getOverdue =  tableData.filter((item) => new Date(item.dueDate) < new Date());
+
+  const getOverduePrice = () =>
+    sumBy(
+      tableData.filter((item) => new Date(item.dueDate) < new Date()),
+      'invoiceAmount'
+    );
 
   const TABS = [
     { value: 'all', label: 'All', color: 'info', count: tableData.length },
@@ -214,7 +224,9 @@ export default function InvoiceListPage() {
   };
 
   const handleDeleteRow = (id) => {
+    
     const deleteRow = tableData.filter((row) => row.id !== id);
+    dispatch(deleteInvoice(id));
     setSelected([]);
     setTableData(deleteRow);
 
@@ -272,7 +284,7 @@ export default function InvoiceListPage() {
           links={[
             {
               name: 'Dashboard',
-              href: PATH_DASHBOARD.invoice.rootx,
+              href: PATH_DASHBOARD.invoice.root,
             },
             {
               name: 'Invoices',
@@ -337,14 +349,14 @@ export default function InvoiceListPage() {
                 color={theme.palette.error.main}
               />
 
-              <InvoiceAnalytic
+              {/* <InvoiceAnalytic
                 title="Draft"
                 total={getLengthByStatus('draft')}
                 percent={getPercentByStatus('draft')}
                 price={getTotalPriceByStatus('draft')}
                 icon="eva:file-fill"
                 color={theme.palette.text.secondary}
-              />
+              /> */}
             </Stack>
           </Scrollbar>
         </Card>
@@ -380,7 +392,7 @@ export default function InvoiceListPage() {
             filterService={filterService}
             filterEndDate={filterEndDate}
             onFilterName={handleFilterName}
-            optionsService={SERVICE_OPTIONS}
+            optionsService={optionName}
             filterStartDate={filterStartDate}
             onResetFilter={handleResetFilter}
             onFilterService={handleFilterService}
@@ -460,7 +472,7 @@ export default function InvoiceListPage() {
                         onSelectRow={() => onSelectRow(row.id)}
                         onViewRow={() => handleViewRow(row._id)}
                         onEditRow={() => handleEditRow(row._id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
+                        onDeleteRow={() => handleDeleteRow(row._id)}
                       />
                     ))}
 
@@ -548,9 +560,9 @@ function applyFilter({
   }
 
   if (filterService !== 'all') {
+    console.log(filterService)
     inputData = inputData.filter((invoice) =>
-      invoice.items.some((c) => c.service === filterService)
-    );
+      invoice.invoiceTo.clientName === filterService);
   }
 
   if (filterStartDate && filterEndDate) {

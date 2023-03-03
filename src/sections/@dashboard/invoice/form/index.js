@@ -47,7 +47,7 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice }) {
 
   const defaultValues = useMemo(
     () => ({
-      invoiceNo: currentInvoice?.invoiceNo || '17099',
+      invoiceNo: currentInvoice?.invoiceNo || '101',
       invoiceDate: currentInvoice?.invoiceDate || new Date(),
       dueDate: currentInvoice?.dueDate || new Date( new Date().getFullYear(), new Date().getMonth(), new Date().getDate()+90) ,
       TotalAmount: currentInvoice?.TotalAmount || 0,
@@ -77,16 +77,23 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice }) {
 
   const invoiceCreate = useSelector(state => state.invoiceCreate);
   const { loading, invoice, error } = invoiceCreate;
+
   const invoiceUpdate = useSelector((state) => state.invoiceUpdate);
   const {
     loading: loadingUpdate,
     error: errorUpdate,
     success: successUpdate,
   } = invoiceUpdate;
+
+  const invoiceList = useSelector((state) => state.invoiceList);
+  const { loading:loadingList, error:errorList, invoices } = invoiceList;
+
+  
   useEffect(() => {
     if (isEdit && currentInvoice) {
       reset(defaultValues);
     }
+    
     if (!loadingUpdate && error ) {
       console.log(error); 
      
@@ -98,7 +105,7 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice }) {
     if (!isEdit && invoice) {
       reset(defaultValues);
     }
-    if (!isEdit && loading && invoice) {
+    if (!isEdit && !loading && invoice ) {
       reset(defaultValues);
       navigate(PATH_DASHBOARD.invoice.list);
     }
@@ -106,8 +113,6 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, currentInvoice, invoice, loading, successUpdate]);
 
-  const invoiceList = useSelector((state) => state.invoiceList);
-  const { loading:loadingList, error:errorList, invoices } = invoiceList;
   
   useEffect(() => {
     dispatch(listInvoice());
@@ -131,8 +136,7 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice }) {
   const handleCreateAndSend = async (data) => {
     try {
       if (isEdit) {
-        dispatch(
-          updateInvoice(data)
+        dispatch(updateInvoice(data)
         );
       }
       else{
@@ -140,8 +144,7 @@ export default function InvoiceNewEditForm({ isEdit, currentInvoice }) {
           dispatch(createInvoice(data));
           await new Promise((resolve) => setTimeout(resolve, 500));
           reset();
-          setLoadingSend(false);
-          navigate(PATH_DASHBOARD.invoice.list);
+          setLoadingSend(loading);
           console.log('DATA', JSON.stringify(data, null, 2));
         
           

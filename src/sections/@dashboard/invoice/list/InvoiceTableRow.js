@@ -42,7 +42,7 @@ export default function InvoiceTableRow({
   onEditRow,
   onDeleteRow,
 }) {
-  const { items, invoiceNo, invoiceDate, dueDate, status, invoiceTo, invoiceAmount } = row;
+  const { items, invoiceNo, invoiceDate, dueDate, status, invoiceTo, invoiceAmount ,_id} = row;
 
   const [openConfirm, setOpenConfirm] = useState(false);
 
@@ -86,7 +86,7 @@ export default function InvoiceTableRow({
                 onClick={onViewRow}
                 sx={{ color: 'text.disabled', cursor: 'pointer' }}
               >
-                {`INV-${invoiceNo}`}
+                {`${invoiceNo}`}
               </Link>
             </div>
           </Stack>

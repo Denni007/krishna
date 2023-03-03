@@ -15,7 +15,7 @@ import {
   TableContainer,
 } from '@mui/material';
 // utils
-import { fDate } from '../../../../utils/formatTime';
+import { fDate, fDatemonth } from '../../../../utils/formatTime';
 import { fCurrency } from '../../../../utils/formatNumber';
 // components
 import Label from '../../../../components/label2';
@@ -83,7 +83,7 @@ export default function InvoiceDetails({ invoice }) {
                 {status}
               </Label>
 
-              <Typography variant="h6">{`INV-${invoiceNo}`}</Typography>
+              <Typography variant="h6">{`${invoiceNo}`}</Typography>
             </Box>
           </Grid>
 
@@ -94,11 +94,11 @@ export default function InvoiceDetails({ invoice }) {
 
             <Typography variant="body2">Krishna Fashion</Typography>
 
-            <Typography variant="body2">E-202, Sunvally residency, Nr.bhagvan nagar,, behind royal arcade,, sarthana</Typography>
+            <Typography variant="body2">167, Mahavir Nagar Society, Nr. Shyamdham Soc., Puna , Surat</Typography>
 
-            <Typography variant="body2">Phone: 9824723865</Typography>
+            <Typography variant="body2">Phone: 9998023918</Typography>
 
-            <Typography variant="body2">GST: GST12356</Typography>
+            <Typography variant="body2">GST: 24AORPM2520C2Z9</Typography>
 
           </Grid>
 
@@ -163,7 +163,7 @@ export default function InvoiceDetails({ invoice }) {
                   >
                     <TableCell>{index + 1}</TableCell>
                     <TableCell align="left">{row.challanNo}</TableCell>
-                    <TableCell align="left">{row.challanDate}</TableCell>
+                    <TableCell align="left">{fDatemonth(row.challanDate)}</TableCell>
                     <TableCell align="left">
                       <Box sx={{ maxWidth: 560 }}>
                         <Typography variant="subtitle2">{row.designId}</Typography>

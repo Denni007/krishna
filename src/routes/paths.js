@@ -65,6 +65,7 @@ export const PATH_DASHBOARD = {
     root: path(ROOTS_DASHBOARD, '/stock'),
     list: path(ROOTS_DASHBOARD, '/stock/list'),
     newStock: path(ROOTS_DASHBOARD, '/stock/new'),
+    edit: (id) => path(ROOTS_DASHBOARD, `/stock/${id}/edit`),
     editById: path(ROOTS_DASHBOARD, `/stock/reece-chung/edit`)
   },
   design: {

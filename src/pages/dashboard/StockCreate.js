@@ -20,7 +20,7 @@ import { stockDetails } from '../../actions/stockAction';
 
 // ----------------------------------------------------------------------
 
-export default function UserCreate() {
+export default function StockCreate() {
   const { themeStretch } = useSettings();
   const { pathname } = useLocation();
   const { name = '' } = useParams();

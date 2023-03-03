@@ -58,7 +58,7 @@ export default function InvoiceNewEditDetails() {
   useEffect(() => {
     setValue('TotalAmount', sum(totalOnRow));
     
-    setValue('invoiceAmount', invoiceAmount);
+    setValue('invoiceAmount', Number(invoiceAmount));
   }, [setValue, invoiceAmount]);
  
   const handleAdd = () => {

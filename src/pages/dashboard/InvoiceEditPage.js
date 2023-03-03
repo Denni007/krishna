@@ -54,7 +54,7 @@ export default function InvoiceEditPage() {
               name: 'Invoices',
               href: PATH_DASHBOARD.invoice.list,
             },
-            { name: `INV-${invoice?.invoiceNo}` },
+            { name: `${invoice?.invoiceNo}` },
           ]}
         />
 { !loading && invoice && <InvoiceNewEditForm isEdit currentInvoice={invoice} />} 

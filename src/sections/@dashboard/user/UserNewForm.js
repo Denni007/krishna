@@ -96,11 +96,15 @@ export default function UserNewForm({ isEdit, currentUser }) {
       navigate(PATH_DASHBOARD.user.list);
     }
     if (!isEdit && error) {
+      enqueueSnackbar(error); 
+
       console.log(error);       //  reset(defaultValues);
     }
     if (!isEdit && userInfo) {
      // enqueueSnackbar(error); 
       reset(defaultValues);
+      navigate(PATH_DASHBOARD.user.list);
+
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, currentUser,successUpdate,userInfo]);

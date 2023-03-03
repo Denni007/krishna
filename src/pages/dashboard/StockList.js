@@ -1,15 +1,16 @@
-import { sentenceCase } from 'change-case';
+import { paramCase, sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import { format } from 'date-fns';
 
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, Navigate, useParams } from 'react-router-dom';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import {
   Card,
   Table,
+  Link,
   Avatar,
   Button,
   Checkbox,
@@ -52,7 +53,7 @@ const TABLE_HEAD = [
   { id: 'Quantity', label: 'Quantity', alignRight: false },
   { id: 'Challanprice', label: 'Challan Price', alignRight: false },
 
-  { id: 'Action' ,label:'Action' },
+  { id: 'Action', label: 'Action' },
 ];
 
 // ----------------------------------------------------------------------
@@ -79,12 +80,12 @@ export default function UserList() {
   } = stockDelete;
   useEffect(() => {
     if (successDelete) {
-      enqueueSnackbar('Deletee success!'); 
+      enqueueSnackbar('Deletee success!');
       dispatch({ type: USER_DELETE_RESET });
     }
     dispatch(listStock());
-    
-  }, [dispatch , successDelete,  ]);
+
+  }, [dispatch, successDelete,]);
 
   useEffect(() => {
     console.log(stocks)
@@ -93,7 +94,7 @@ export default function UserList() {
       console.log(userLists);
     }
   }, [stocks]);
- 
+
   const handleRequestSort = (property) => {
     console.log(property);
     const isAsc = orderBy === property && order === 'asc';
@@ -140,7 +141,7 @@ export default function UserList() {
     const deleteUser = userLists.filter((user) => user.id !== userId);
     dispatch(deleteStock(userId));
     setSelected([]);
-   setUserLists(deleteUser);
+    setUserLists(deleteUser);
   };
 
   const handleDeleteMultiUser = (selected) => {
@@ -198,7 +199,7 @@ export default function UserList() {
                 />
                 <TableBody>
                   {!loading && filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { _id, challanNo, challanDate, designId, designName, design,stockQuantity,Short,clientId,client } = row;
+                    const { _id, challanNo, challanDate, designId, designName, design, stockQuantity, Short, clientId, client } = row;
                     const isItemSelected = selected.indexOf(challanNo) !== -1;
 
                     return (
@@ -215,34 +216,37 @@ export default function UserList() {
                         </TableCell>
                         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
                           {/* // <Avatar alt={clientName} src={avatarUrl} sx={{ mr: 2 }} /> */}
-                          <Typography variant="subtitle2" noWrap>
-                            {challanNo}
+                          <Typography component={RouterLink} to={`${PATH_DASHBOARD.stock.root}/${paramCase(_id)}/edit`} variant="subtitle2"  sx={{ color: 'text.disabled', cursor: 'pointer' }} noWrap>
+                            
+                             {challanNo}
+                            
+                            
                           </Typography>
                         </TableCell>
                         <TableCell align="left">
-                        <Typography variant="subtitle2">{format(new Date(challanDate), 'dd MMM yyyy')}</Typography>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        {format(new Date(challanDate), 'p')}
-                      </Typography>
+                          <Typography variant="subtitle2">{format(new Date(challanDate), 'dd MMM yyyy')}</Typography>
+                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            {format(new Date(challanDate), 'p')}
+                          </Typography>
                         </TableCell>
                         <TableCell align="left">
-                        <Typography variant="subtitle2">{designName}</Typography>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                       {designId}
-                      </Typography>
-                          </TableCell>
+                          <Typography variant="subtitle2">{designName}</Typography>
+                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            {designId}
+                          </Typography>
+                        </TableCell>
                         <TableCell align="left">
-                        <Typography variant="subtitle2">{row.clientName}</Typography>
-                       <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                       {clientId}
-                      </Typography>
+                          <Typography variant="subtitle2">{row.clientName}</Typography>
+                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            {clientId}
+                          </Typography>
                         </TableCell>
                         <TableCell>{fCurrency(design.designRate)}</TableCell>
                         <TableCell>{Short}</TableCell>
                         <TableCell>{stockQuantity}</TableCell>
-                        <TableCell>₹{fCurrency((design.designRate -Short) * stockQuantity)}</TableCell>
+                        <TableCell>₹{fCurrency((design.designRate - Short) * stockQuantity)}</TableCell>
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
-                         {/* <TableCell align="left">
+                        {/* <TableCell align="left">
                           <Label
                             variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
                             color={(status === 'banned' && 'error') || 'success'}
@@ -318,8 +322,8 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-
-    return array.filter((_user) => _user.clientName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    const inputData =  array.filter((_user) => _user.clientName.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||  _user.challanNo.toLowerCase().indexOf(query.toLowerCase()) !== -1||  _user.designName.toLowerCase().indexOf(query.toLowerCase()) !== -1) 
+    return inputData;
   }
   return stabilizedThis.map((el) => el[0]);
 }

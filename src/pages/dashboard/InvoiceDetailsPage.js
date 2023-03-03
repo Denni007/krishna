@@ -51,7 +51,7 @@ export default function InvoiceDetailsPage() {
               name: 'Invoices',
               href: PATH_DASHBOARD.invoice.list,
             },
-            { name: `INV-${invoice?.invoiceNo}` },
+            { name: `${invoice?.invoiceNo}` },
           ]}
         />
 

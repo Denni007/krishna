@@ -1,8 +1,10 @@
 /* eslint-disable jsx-a11y/alt-text */
 import PropTypes from 'prop-types';
 import { Page, View, Text, Image, Document } from '@react-pdf/renderer';
+import { ToWords } from 'to-words';
+
 // utils
-import { fDate } from '../../../../utils/formatTime';
+import { fDate, fDatemonth } from '../../../../utils/formatTime';
 import { fCurrency } from '../../../../utils/formatNumber';
 //
 import styles from './InvoiceStyle';
@@ -27,19 +29,22 @@ export default function InvoicePDF({ invoice }) {
     TotalAmount,
   } = invoice;
   const totalTaxAmount = (TotalAmount / 100) * (discount ? 95 : 100);
-  const gst = (totalTaxAmount / 100) * 2.5
+  const gst = (totalTaxAmount / 100) * 2.5;
+  const toWords = new ToWords();
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        
+
 
         <View style={[styles.gridContainer, styles.mb40]}>
           <View style={styles.col6}>
             <Text style={[styles.overline, styles.mb8]}>Invoice from</Text>
             <Text style={styles.body1}>Krishna Fashion</Text>
-            <Text style={styles.body1}>E-202, Sunvally residency, Nr.bhagvan nagar,, behind royal arcade,, sarthana</Text>
-            <Text style={styles.body1}>9824726385</Text>
-            <Text style={styles.body1}>GST123765</Text>
+            <Text style={styles.body1}>167, Mahavir Nagar Society, Nr. Shyamdham </Text>
+            <Text style={styles.body1}>Soc., Puna , Surat</Text>
+            <Text style={styles.body1}>Phone: 9998023918</Text>
+            <Text style={styles.body1}>GSR: 24AORPM2520C2Z9</Text>
 
           </View>
 
@@ -56,8 +61,8 @@ export default function InvoicePDF({ invoice }) {
             <Text style={styles.body1}>{fDate(invoiceDate)}</Text>
           </View>
           <View style={{ alignItems: 'flex-end', flexDirection: 'column' }}>
-            <Text style={styles.h3}>{status}</Text>
-            <Text> {`INV-${invoiceNo}`} </Text>
+            <Text style={styles.h3}>Bill No:  {`${invoiceNo}`}</Text>
+            <Text> {status} </Text>
           </View>
         </View>
         {/* <View style={[styles.gridContainer, styles.mb40]}>
@@ -120,11 +125,11 @@ export default function InvoicePDF({ invoice }) {
                   <Text>{item.challanNo}</Text>
                 </View>
                 <View style={styles.tableCell_3}>
-                  <Text>{item.challanDate}</Text>
+                  <Text>{fDatemonth(item.challanDate)}</Text>
                 </View>
                 <View style={styles.tableCell_3}>
                   <Text style={styles.subtitle2}>{item.designId}</Text>
-                  
+
                 </View>
                 <View style={styles.tableCell_3}>
                   <Text style={styles.subtitle2}>{item.designName}</Text>
@@ -149,7 +154,8 @@ export default function InvoicePDF({ invoice }) {
                 </View>
               </View>
             ))}
-
+          </View>
+          <View >
             <View style={[styles.tableRow, styles.noBorder]}>
               <View style={styles.tableCell_1} />
               <View style={styles.tableCell_2} />
@@ -170,7 +176,7 @@ export default function InvoicePDF({ invoice }) {
                 <Text>Discount</Text>
               </View>
               <View style={[styles.tableCell_3, styles.alignRight]}>
-                <Text>{discount ? fCurrency(TotalAmount/ 100) * 5 : 0}</Text>
+                <Text>{discount ? fCurrency(TotalAmount / 100) * 5 : 0}</Text>
               </View>
             </View>
             <View style={[styles.tableRow, styles.noBorder]}>
@@ -220,17 +226,29 @@ export default function InvoicePDF({ invoice }) {
             </View>
           </View>
         </View>
+        <View style={[styles.gridContainer]}>
+          <View style={styles.col8}>
+            <Text style={styles.subtitle2}>NOTES</Text>
+            <Text>
+            {toWords.convert(fCurrency(invoiceAmount), { currency: true }).toUpperCase()}
+            </Text>
+          </View>
+         
+        </View>
 
         <View style={[styles.gridContainer, styles.footer]}>
           <View style={styles.col8}>
             <Text style={styles.subtitle2}>NOTES</Text>
             <Text>
-              We appreciate your business. Should you need us to add VAT or extra notes let us know!
+              payment will be accepted only be A/C. Payee's Dreaft/Cheque
             </Text>
           </View>
           <View style={[styles.col4, styles.alignRight]}>
-            <Text style={styles.subtitle2}>Have a Question?</Text>
-            <Text>support@abcapp.com</Text>
+            <Text style={styles.subtitle2}>For, Mr.Jayeshbhai Mulsaniya</Text>
+            <Text> {'\n'}</Text>
+            <Text style={styles.subtitle2}>Authorized Sign</Text>
+
+
           </View>
         </View>
       </Page>
