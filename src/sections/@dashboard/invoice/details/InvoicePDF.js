@@ -89,12 +89,10 @@ export default function InvoicePDF({ invoice }) {
               <View style={styles.tableCell_3}>
                 <Text style={styles.subtitle2}>Challan Date</Text>
               </View>
-              <View style={styles.tableCell_3}>
+              <View style={styles.tableCell_2}>
                 <Text style={styles.subtitle2}>Design</Text>
               </View>
-              <View style={styles.tableCell_3}>
-                <Text style={styles.subtitle2}>Design Name</Text>
-              </View>
+             
 
               <View style={styles.tableCell_3}>
                 <Text style={styles.subtitle2}>Short</Text>
@@ -127,13 +125,11 @@ export default function InvoicePDF({ invoice }) {
                 <View style={styles.tableCell_3}>
                   <Text>{fDatemonth(item.challanDate)}</Text>
                 </View>
-                <View style={styles.tableCell_3}>
+                <View style={styles.tableCell_2}>
                   <Text style={styles.subtitle2}>{item.designId}</Text>
-
+                  <Text>{item.designName}</Text>
                 </View>
-                <View style={styles.tableCell_3}>
-                  <Text style={styles.subtitle2}>{item.designName}</Text>
-                </View>
+               
 
                 <View style={styles.tableCell_3}>
                   <Text>{item.short}</Text>

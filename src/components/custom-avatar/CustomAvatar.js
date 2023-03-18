@@ -22,7 +22,8 @@ const getColorByName = (name) => {
 const CustomAvatar = forwardRef(({ color, name = '', BadgeProps, children, sx, ...other }, ref) => {
   const theme = useTheme();
 
-  const charAtName = getCharAtName(name);
+  const charAtName = getCharAtName(name.split(" ")[0]);
+  const charAtName2 = name.split(" ").length>1?getCharAtName(name.split(" ")[1]):'';
 
   const colorByName = getColorByName(name);
 
@@ -31,7 +32,7 @@ const CustomAvatar = forwardRef(({ color, name = '', BadgeProps, children, sx, .
   const renderContent =
     colr === 'default' ? (
       <Avatar ref={ref} sx={sx} {...other}>
-        {name && charAtName}
+        {name && charAtName+charAtName2}
         {children}
       </Avatar>
     ) : (
@@ -45,7 +46,7 @@ const CustomAvatar = forwardRef(({ color, name = '', BadgeProps, children, sx, .
         }}
         {...other}
       >
-        {name && charAtName}
+        {name && charAtName+charAtName2}
         {children}
       </Avatar>
     );

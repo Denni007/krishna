@@ -12,7 +12,7 @@ import AuthGuard from '../guards/AuthGuard';
 // config
 import { PATH_AFTER_LOGIN } from '../config';
 // components
-import LoadingScreen from '../components/LoadingScreen';
+import LoadingScreen from '../components/loading-screen';
 
 // ----------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ const Loadable = (Component) => (props) => {
   const { pathname } = useLocation();
 
   return (
-    <Suspense fallback={<LoadingScreen isDashboard={pathname.includes('/dashboard')} />}>
+    <Suspense fallback={<LoadingScreen />}>
       <Component {...props} />
     </Suspense>
   );
@@ -91,12 +91,12 @@ export default function Router() {
         {
           path: 'user',
           children: [
-            { element: <Navigate to="/dashboard/user/profile" replace />, index: true },
+            { element: <Navigate to="/dashboard/user/list" replace />, index: true },
             { path: 'profile', element: <UserProfile /> },
             { path: 'cards', element: <UserCards /> },
             { path: 'list', element: <UserList /> },
             { path: 'new', element: <UserCreate /> },
-            { path: ':name/edit', element: <UserCreate /> },
+            { path: ':id/edit', element: <UserEdit /> },
             { path: 'account', element: <UserAccount /> },
           ],
         },
@@ -226,7 +226,8 @@ const BlogPost = Loadable(lazy(() => import('../pages/dashboard/BlogPost')));
 const BlogNewPost = Loadable(lazy(() => import('../pages/dashboard/BlogNewPost')));
 const UserProfile = Loadable(lazy(() => import('../pages/dashboard/UserProfile')));
 const UserCards = Loadable(lazy(() => import('../pages/dashboard/UserCards')));
-const UserList = Loadable(lazy(() => import('../pages/dashboard/UserList')));
+const UserList = Loadable(lazy(() => import('../pages/dashboard/UserListPage')));
+const UserEdit = Loadable(lazy(() => import('../pages/dashboard/UserEdit')));
 
 const UserAccount = Loadable(lazy(() => import('../pages/dashboard/UserAccount')));
 const UserCreate = Loadable(lazy(() => import('../pages/dashboard/UserCreate')));

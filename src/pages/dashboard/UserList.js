@@ -1,9 +1,10 @@
-import { sentenceCase } from 'change-case';
+import { sentenceCase,paramCase } from 'change-case';
 import { useEffect, useState } from 'react';
+
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import {
@@ -23,28 +24,40 @@ import {
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
-import useSettings from '../../hooks/useSettings';
+import {useSettingsContext} from '../../hooks/useSettings';
 // _mock_
 import { _userList } from '../../_mock';
 // components
 import Page from '../../components/Page';
 import Label from '../../components/Label';
 import Iconify from '../../components/Iconify';
+import {
+  useTable,
+  getComparator,
+  emptyRows,
+  TableNoData,
+  TableEmptyRows,
+  TableHeadCustom,
+  TableSelectedAction,
+  TablePaginationCustom,
+} from '../../components/table';
 import Scrollbar from '../../components/Scrollbar';
 import SearchNotFound from '../../components/SearchNotFound';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 // sections
-import { UserListHead, UserListToolbar, UserMoreMenu } from '../../sections/@dashboard/user/list';
+import { UserListHead, UserListToolbar, UserMoreMenu ,UserTableRow} from '../../sections/@dashboard/user/list';
 
-import { deleteClient, listUsers } from '../../actions/userActions';
+// import { deleteClient, listUsers } from '../../actions/userActions';
 import { USER_DELETE_RESET } from '../../constants/userConstants';
+import { getClients ,deleteClient} from '../../redux/slices/client';
+import ConfirmDialog from '../../components/confirm-dialog/ConfirmDialog';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: 'clientName', label: 'Client Name', alignRight: false },
   { id: 'ClientId', label: 'client ID', alignRight: false },
-  { id: 'phonenumber', label: 'Phone Number', alignRight: false },
-  { id: 'gst', label: 'GST', alignRight: false },
+  { id: 'phonenumber', label: 'GST', alignRight: false },
+  { id: 'gst', label: 'Phone Number', alignRight: false },
   { id: 'address', label: 'Address', alignRight: false },
   { id: '' },
 ];
@@ -53,32 +66,69 @@ const TABLE_HEAD = [
 
 export default function UserList() {
   const theme = useTheme();
-  const { themeStretch } = useSettings();
+  const navigate = useNavigate();
+  
+
+  const { themeStretch } = useSettingsContext();
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
-  const [userLists, setUserLists] = useState([]);
+  const [filterRoleuserLists, setUserLists] = useState([]);
   const userList = useSelector((state) => state.userList);
   const { loading, error, users } = userList;
+  const [openConfirm, setOpenConfirm] = useState(false);
+ 
+  const [tableData, setTableData] = useState([]);
+
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState('clientName');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const { clients, isLoading } = useSelector((state) => state.client);
   const clientDelete = useSelector((state) => state.clientDelete);
   const {
     loading: loadingDelete,
     error: errorDelete,
     success: successDelete,
   } = clientDelete;
+
+  const handleOpenConfirm = () => {
+    setOpenConfirm(true);
+  };
+
+  const handleCloseConfirm = () => {
+    setOpenConfirm(false);
+  };
   useEffect(() => {
     if (successDelete) {
       enqueueSnackbar('Deletee success!'); 
       dispatch({ type: USER_DELETE_RESET });
     }
-    dispatch(listUsers());
-    
+    //  dispatch(listUsers());
+    dispatch(getClients());
   }, [dispatch , successDelete,  ]);
+
+  useEffect(() => {
+    if (clients.length) {
+      setTableData(clients);
+    }
+  }, [clients]);
+
+  const dataFiltered = applyFilter({
+    inputData: tableData,
+    comparator: getComparator(order, orderBy),
+    filterName,
+  });
+
+  const dataInPage = dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
+  const denseHeight = true ? 60 : 80;
+
+  const isFiltered = filterName !== '' ;
+
+  const isNotFound = (!dataFiltered.length && !!filterName) || (!isLoading && !dataFiltered.length);
+
 
   useEffect(() => {
     if (users?.length) {
@@ -97,7 +147,7 @@ export default function UserList() {
 
   const handleSelectAllClick = (checked) => {
     if (checked) {
-      const newSelecteds = userLists.map((n) => n.name);
+      const newSelecteds = clients.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -131,21 +181,42 @@ export default function UserList() {
 
   const handleDeleteUser = (userId) => {
     console.log(userId);
-    const deleteUser = userLists.filter((user) => user.id !== userId);
+    const deleteUser = clients.filter((user) => user.id !== userId);
     dispatch(deleteClient(userId));
+    
     setSelected([]);
    setUserLists(deleteUser);
   };
 
+  const handleDeleteRow = (id) => {
+    console.log(id);
+    // const deleteUser = clients.filter((user) => user._id !== id);
+     dispatch(deleteClient(id));
+     enqueueSnackbar('Deletee success!'); 
+     setTableData(clients);
+
+    if (page > 0) {
+      if (dataInPage.length < 2) {
+        setPage(page - 1);
+      }
+    }
+  };
+
+  const handleEditRow = (id) => {
+    console.log(id);
+
+    navigate(PATH_DASHBOARD.user.edit(paramCase(id)));
+  };
+
   const handleDeleteMultiUser = (selected) => {
-    const deleteUsers = userLists.filter((user) => !selected.includes(user.name));
+    const deleteUsers = clients.filter((user) => !selected.includes(user.name));
     setSelected([]);
     setUserLists(deleteUsers);
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userLists.length) : 0;
-  const filteredUsers = applySortFilter(userLists, getComparator(order, orderBy), filterName);
-  const isNotFound = !filteredUsers.length && Boolean(filterName);
+  // const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - clients.length) : 0;
+  const filteredUsers = applySortFilter(clients, getComparator(order, orderBy), filterName);
+  // const isNotFound = !filteredUsers.length && Boolean(filterName);
 
 
   return (
@@ -185,13 +256,13 @@ export default function UserList() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={userLists.length}
+                  rowCount={clients.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
-                <TableBody>
-                  {!loading && filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                {/* <TableBody>
+                  {!isLoading && clients.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { _id, clientName, clientId, phoneNumber, gst, address } = row;
                     const isItemSelected = selected.indexOf(clientName) !== -1;
 
@@ -208,24 +279,15 @@ export default function UserList() {
                           <Checkbox checked={isItemSelected} onClick={() => handleClick(clientName)} />
                         </TableCell>
                         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-                          {/* // <Avatar alt={clientName} src={avatarUrl} sx={{ mr: 2 }} /> */}
                           <Typography variant="subtitle2" noWrap>
                             {clientName}
                           </Typography>
                         </TableCell>
-                        <TableCell align="left">{clientId}</TableCell>
+                        <TableCell align="left">{c}</TableCell>
                         <TableCell align="left">{phoneNumber}</TableCell>
                         <TableCell align="left">{gst}</TableCell>
                         <TableCell align="left">{address}</TableCell>
-                        {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
-                         {/* <TableCell align="left">
-                          <Label
-                            variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-                            color={(status === 'banned' && 'error') || 'success'}
-                          >
-                            {sentenceCase(status)}
-                          </Label>
-                        </TableCell> */}
+                       
 
                         <TableCell align="right">
                           <UserMoreMenu onDelete={() => handleDeleteUser(_id)} userName={clientId} />
@@ -238,8 +300,29 @@ export default function UserList() {
                       <TableCell colSpan={6} />
                     </TableRow>
                   )}
-                </TableBody>
-                {loading && (
+                </TableBody> */}
+                <TableBody>
+                  {dataFiltered
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((row) => (
+                      <UserTableRow
+                        key={row._id}
+                        row={row}
+                        // selected={selected.includes(row._id)}
+                       // onSelectRow={() => onSelectRow(row._id)}
+                        onDeleteRow={() => handleDeleteRow(row._id)}
+                        onEditRow={() => handleEditRow(row._id)}
+                      />
+                    ))}
+
+                  <TableEmptyRows
+                    height={denseHeight}
+                    emptyRows={emptyRows(page, rowsPerPage, tableData.length)}
+                  />
+
+                  <TableNoData isNotFound={isNotFound} />
+                  </TableBody>
+                {isLoading && (
                   <TableBody>
                     <TableRow>
                       <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
@@ -255,7 +338,7 @@ export default function UserList() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={userLists.length}
+            count={clients.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={(e, page) => setPage(page)}
@@ -263,6 +346,7 @@ export default function UserList() {
           />
         </Card>
       </Container>
+      
     </Page>
   );
 }
@@ -279,12 +363,12 @@ function descendingComparator(a, b, orderBy) {
   return 0;
 }
 
-function getComparator(order, orderBy) {
+// function getComparator(order, orderBy) {
 
-  return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
+//   return order === 'desc'
+//     ? (a, b) => descendingComparator(a, b, orderBy)
+//     : (a, b) => -descendingComparator(a, b, orderBy);
+// }
 
 function applySortFilter(array, comparator, query) {
   const stabilizedThis = array.map((el, index) => [el, index]);
@@ -299,4 +383,28 @@ function applySortFilter(array, comparator, query) {
     return array.filter((_user) => _user.clientName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
+}
+
+function applyFilter({ inputData, comparator, filterName }) {
+  const stabilizedThis = inputData.map((el, index) => [el, index]);
+
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) return order;
+    return a[1] - b[1];
+  });
+
+  inputData = stabilizedThis.map((el) => el[0]);
+
+  if (filterName) {
+    inputData = inputData.filter(
+      (product) => product.clientName.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 || product.clientId.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
+    );
+  }
+
+  // if (filterStatus.length) {
+  //   inputData = inputData.filter((product) => filterStatus.includes(product.inventoryType));
+  // }
+
+  return inputData;
 }

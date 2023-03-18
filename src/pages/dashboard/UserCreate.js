@@ -31,7 +31,6 @@ export default function UserCreate() {
   useEffect(() => {
    
     dispatch(clientDetails(name));
-    console.log("hhello");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
@@ -45,10 +44,10 @@ export default function UserCreate() {
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
             { name: 'User', href: PATH_DASHBOARD.user.list },
-            { name: !isEdit ? 'New user' : capitalCase(name) },
+            { name: 'New user'  },
           ]}
         />
-  { !loading && <UserNewForm isEdit={isEdit} currentUser={client} />} 
+        <UserNewForm /> 
 
         
       </Container>

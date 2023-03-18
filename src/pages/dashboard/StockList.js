@@ -52,6 +52,7 @@ const TABLE_HEAD = [
   { id: 'Short', label: 'Short', alignRight: false },
   { id: 'Quantity', label: 'Quantity', alignRight: false },
   { id: 'Challanprice', label: 'Challan Price', alignRight: false },
+  { id: 'is Invoiced', label: 'Is Invoiced', alignRight: false },
 
   { id: 'Action', label: 'Action' },
 ];
@@ -245,15 +246,18 @@ export default function UserList() {
                         <TableCell>{Short}</TableCell>
                         <TableCell>{stockQuantity}</TableCell>
                         <TableCell>₹{fCurrency((design.designRate - Short) * stockQuantity)}</TableCell>
-                        {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
-                        {/* <TableCell align="left">
-                          <Label
-                            variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-                            color={(status === 'banned' && 'error') || 'success'}
-                          >
-                            {sentenceCase(status)}
-                          </Label>
-                        </TableCell> */}
+                        {/* <TableCell align="left">{row.isInvoiced ? 'Yes' : 'No'}</TableCell> */}
+                        <TableCell align="center">
+          <Iconify
+            icon={row.isInvoiced ? 'eva:checkmark-circle-fill' : 'eva:clock-outline'}
+            sx={{
+              width: 20,
+              height: 20,
+              color: 'success.main',
+              ...(!row.isInvoiced && { color: 'warning.main' }),
+            }}
+          />
+        </TableCell>
 
                         <TableCell align="right">
                           <StockMoreMenu onDelete={() => handleDeleteUser(_id)} userName={_id} />

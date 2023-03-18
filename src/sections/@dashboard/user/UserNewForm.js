@@ -20,7 +20,7 @@ import { countries } from '../../../_mock';
 // components
 import Label from '../../../components/Label';
 import { FormProvider, RHFSelect, RHFSwitch, RHFTextField, RHFUploadAvatar } from '../../../components/hook-form';
-import { createClient, updateClient } from '../../../actions/userActions';
+import { createClient, updateClient } from '../../../redux/slices/client';
 import { USER_UPDATE_PROFILE_RESET, USER_UPDATE_RESET } from '../../../constants/userConstants';
 
 // ----------------------------------------------------------------------
@@ -73,58 +73,56 @@ export default function UserNewForm({ isEdit, currentUser }) {
 
   const values = watch();
 
-  const clientCreate = useSelector(state => state.clientCreate);
-  const { loading, userInfo, error } = clientCreate;
-
-  const clientUpdate = useSelector((state) => state.clientUpdate);
-  const {
-    loading: loadingUpdate,
-    error: errorUpdate,
-    success: successUpdate,
-  } = clientUpdate;
+  // const clientCreate = useSelector(state => state.clientCreate);
+  const { isLoading, clients,clientUpdate, error ,isSuccess}= useSelector(state => state.client);
+   
+  // const clientUpdate = useSelector((state) => state.clientUpdate);
+  // const {
+  //   loading: loadingUpdate,
+  //   error: errorUpdate,
+  //   success: successUpdate,
+  // } = clientUpdate;
 
   useEffect(() => {
     if (isEdit && currentUser) {
       reset(defaultValues);
     }
-    if (!loading && error ) {
-      console.log(error); 
-     
+    if (!isLoading && error ) {
+      console.log(error);
     }
-    if (isEdit && successUpdate) {
+    if (!isEdit && isSuccess) {
+      enqueueSnackbar('Client Create',{variant:'success'} ); 
+      reset(defaultValues);
+      dispatch({ type: USER_UPDATE_PROFILE_RESET });
+      navigate(PATH_DASHBOARD.user.list);
+    }
+    if (isEdit && isSuccess) {
+      enqueueSnackbar('Client Updated',{variant:'success'} ); 
       dispatch({ type: USER_UPDATE_PROFILE_RESET });
       navigate(PATH_DASHBOARD.user.list);
     }
     if (!isEdit && error) {
-      enqueueSnackbar(error); 
-
-      console.log(error);       //  reset(defaultValues);
+      console.log(error);
+      enqueueSnackbar(error.message,{variant:'error'} ); 
+      //  reset(defaultValues);
     }
-    if (!isEdit && userInfo) {
-     // enqueueSnackbar(error); 
-      reset(defaultValues);
-      navigate(PATH_DASHBOARD.user.list);
-
-    }
+    
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, currentUser,successUpdate,userInfo]);
+  }, [isEdit, error,currentUser,clients,isSuccess]);
 
   const onSubmit = async (data) => {
     try {
       if (isEdit) {
-        dispatch(
-          updateClient(data)
-        );
+        await dispatch(updateClient(data));
       }
       else{
         dispatch(createClient(data.clientName, data.clientId, data.gst, data.phoneNumber,data.address));
         await new Promise((resolve) => setTimeout(resolve, 500));
-        reset();
+       
       }
-      enqueueSnackbar(!isEdit && userInfo.length>0 ? 'Create success!' : 'Update success!'); 
       
     } catch (error) {
-      console.error(error);
+      enqueueSnackbar(error,{variant:'error'} ); 
     }
   };
 
@@ -247,7 +245,7 @@ export default function UserNewForm({ isEdit, currentUser }) {
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+              <LoadingButton type="submit" variant="contained" loading={isSubmitting && isLoading}>
                 {!isEdit ? 'Create User' : 'Save Changes'}
               </LoadingButton>
             </Stack>

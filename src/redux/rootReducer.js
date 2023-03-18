@@ -11,6 +11,8 @@ import { stockCreateReducer, stockDeleteReducer, stockDetailReducer, stockListRe
 import mailReducer from './slices/mail';
 import chatReducer from './slices/chat';
 import productReducer from './slices/product';
+import clientReducer from './slices/client';
+
 import calendarReducer from './slices/calendar';
 import kanbanReducer from './slices/kanban';
 import { designCreateReducer, designDeleteReducer, designDetailReducer, designListReducer, designUpdateReducer } from '../reducers/designReducers';
@@ -61,11 +63,11 @@ const rootReducer = combineReducers({
   stockDelete:stockDeleteReducer,
   stockDetail : stockDetailReducer,
   stockUpdate:stockUpdateReducer, 
-
   invoiceList: invoiceListReducer,
   invoiceCreate : invoiceCreateReducer,
   invoiceDelete:invoiceDeleteReducer,
   invoiceDetail : invoiceDetailReducer,
+  client:clientReducer,
   invoiceUpdate:invoiceUpdateReducer, 
   clientCreate : clientCreateReducer,
   clientDetail : clientDetailReducer,

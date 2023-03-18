@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   },
   noBorder: { paddingTop: 8, paddingBottom: 0, borderBottomWidth: 0 },
   tableCell_1: { width: '5%' },
-  tableCell_2: { width: '50%', paddingRight: 16 },
+  tableCell_2: { width: '50%', paddingRight: 16 ,alignItems:'center'},
   tableCell_3: { width: '15%' },
 });
 
