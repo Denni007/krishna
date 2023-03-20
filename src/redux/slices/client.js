@@ -248,7 +248,7 @@ export function getClient(name) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`http://localhost:5000/api/users/${name}`);
+      const response = await axios.get(`/api/users/${name}`);
       dispatch(slice.actions.getClientSuccess(response.data));
     } catch (error) {
       console.error(error);
@@ -285,7 +285,7 @@ export function deleteClient(id) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.delete(`/api/users//${id}`);
+      const response = await axios.delete(`/api/users/${id}`);
       dispatch(slice.actions.deleteClientSuccess(response.data));
     } catch (error) {
       console.error(error);
