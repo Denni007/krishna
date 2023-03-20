@@ -20,10 +20,13 @@ import { countries } from '../../../_mock';
 // components
 import Label from '../../../components/Label';
 import { FormProvider, RHFSelect, RHFSwitch, RHFTextField, RHFUploadAvatar } from '../../../components/hook-form';
-import { createDesign, updateDesign } from '../../../actions/designActions';
+// import { createDesign, updateDesign } from '../../../actions/designActions';
 import {  listUsers } from '../../../actions/userActions';
 
 import {  DESIGN_UPDATE_RESET } from '../../../constants/designConstants';
+import { createDesign, resetDesign, updateDesign } from '../../../redux/slices/design';
+import { getClients } from '../../../redux/slices/client';
+
 
 // ----------------------------------------------------------------------
 
@@ -71,46 +74,46 @@ export default function DesignNewForm({ isEdit, currentDesign }) {
   const values = watch();
 
   const [filterName, setFilterName] = useState([]);
-  const userList = useSelector((state) => state.userList);
-  const { loading:loadingclient, error:errorclient, users:clientData } = userList;
-  const designUpdate = useSelector((state) => state.designUpdate);
-  const {
-    loading: loadingUpdate,
-    error: errorUpdate,
-    success: successUpdate,
-  } = designUpdate;
+  const { isLoading:isClientloading, clients, error :errorClient}= useSelector(state => state.client);
+  const { isLoading, designs,clientUpdate, error ,isSuccess}= useSelector(state => state.design);
 
-  const designCreate = useSelector((state) => state.designCreate);
-  const { loading:loadingcreate, error:errorCreate, design } = designCreate;
-  
   useEffect(() => {
     if (isEdit && currentDesign) {
       reset(defaultValues);
-    }
-    if (isEdit && successUpdate) {
-      dispatch({ type: DESIGN_UPDATE_RESET });
-      navigate(PATH_DASHBOARD.design.list);
-    }
-    if (!loadingcreate && design) {
-     
-      reset(defaultValues);
-      navigate(PATH_DASHBOARD.design.list);
-      
-    }
-    if (!isEdit) {
-      reset(defaultValues);
+    } 
+    if (!isLoading && error ) {
+      console.log(error);
+      enqueueSnackbar(error.message,{variant:'error'} ); 
     }
     
-    dispatch(listUsers());
+    if (!isEdit && isSuccess) {
+      enqueueSnackbar('Design Create',{variant:'success'} ); 
+      reset(defaultValues);
+     
+      dispatch(resetDesign());
+      navigate(PATH_DASHBOARD.design.list);
+    }
+    if (isEdit && isSuccess) {
+      enqueueSnackbar('Design Updated',{variant:'success'} ); 
+      dispatch(resetDesign());
+      navigate(PATH_DASHBOARD.design.list);
+    }
+    if (!isEdit && error) {
+      
+      enqueueSnackbar(error.message,{variant:'error'} ); 
+      //  reset(defaultValues);
+    }
+    
+    dispatch(getClients());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, currentDesign,successUpdate]);
+  }, [isEdit, currentDesign,isSuccess,error]);
   
   
   useEffect(() => {
-    if (clientData) {
-      setFilterName(clientData)
+    if (clients) {
+      setFilterName(clients)
     }
-  }, [clientData]);
+  }, [clients]);
 
   const onSubmit = async (data) => {
     console.log(data)
@@ -119,14 +122,11 @@ export default function DesignNewForm({ isEdit, currentDesign }) {
         dispatch(updateDesign(data));
       }
       else{
-        
         dispatch(createDesign(data.designName, data.designId, data.client, data.designRate));
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        reset();
-        navigate(PATH_DASHBOARD.design.list);
+        await new Promise((resolve) => setTimeout(resolve, 500));       
 
       }
-      enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!'); 
+      // enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!'); 
     } catch (error) {
       console.error(error);
     }

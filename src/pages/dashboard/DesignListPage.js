@@ -41,8 +41,8 @@ import {
   TablePaginationCustom,
 } from '../../components/table';
 // sections
-import { UserTableToolbar, UserTableRow } from '../../sections/@dashboard/user/list';
-import { deleteClient, getClients, resetClient } from '../../redux/slices/client';
+import { DesignTableToolbar, DesignTableRow } from '../../sections/@dashboard/design/list';
+import { deleteDesign, getDesigns, resetDesign } from '../../redux/slices/design';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 
 // ----------------------------------------------------------------------
@@ -63,17 +63,18 @@ const ROLE_OPTIONS = [
 ];
 
 const TABLE_HEAD = [
-  { id: 'clientName', label: 'Client Name', align: 'left' },
-  { id: 'clientId', label: 'Client ID', align: 'left' },
-  { id: 'gst', label: 'GST', align: 'left' },
-  { id: 'phoneNumber', label: 'Phone Number', align: 'center' },
-  { id: 'address', label: 'Address', align: 'left' },
+  { id: 'designName', label: 'Design Name', align: 'left' },
+  { id: 'Client', label: 'Client Name', align: 'left' },
+  { id: 'Client Id', label: 'Client ID', align: 'left' },
+  { id: 'Rate', label: 'Rate', align: 'left' },
+  // { id: 'Rate', label: 'Rate', align: 'center' },
+  // { id: 'address', label: 'Address', align: 'left' },
   { id: '' },
 ];
 
 // ----------------------------------------------------------------------
 
-export default function UserListPage() {
+export default function DesignListPage() {
   const {
     dense,
     page,
@@ -104,7 +105,7 @@ export default function UserListPage() {
   const [filterName, setFilterName] = useState('');
 
   const [filterRole, setFilterRole] = useState('all');
-  const { clients, isLoading,error,isSuccess } = useSelector((state) => state.client);
+  const { designs, isLoading,error,isSuccess } = useSelector((state) => state.design);
 
 
   const [filterStatus, setFilterStatus] = useState('all');
@@ -118,14 +119,16 @@ export default function UserListPage() {
   });
 
   const dataInPage = dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  const roleOption = (!dataFiltered.length ? ROLE_OPTIONS: dataFiltered.map((data) => data.clientName));
+  const roleOption = (!dataFiltered.length ? ROLE_OPTIONS: dataFiltered.map((item) => item.client.clientName)).filter((value,index,self) => {
+    return self.indexOf(value) === index
+  });
 
   const denseHeight = dense ? 52 : 72;
 
   const isFiltered = filterName !== '' || filterRole !== 'all' || filterStatus !== 'all';
 
   const isNotFound =
-    (!dataFiltered.length && !!filterName) ||  (!dataFiltered.length && !!filterStatus);
+    (!dataFiltered.length && !!filterName) ||  (!dataFiltered.length && !!filterStatus) || (!dataFiltered.length && !!filterRole);
 
   const handleOpenConfirm = () => {
     setOpenConfirm(true);
@@ -167,7 +170,7 @@ export default function UserListPage() {
   // };
   const handleDeleteRow = async (id) => {
     try {
-        await dispatch(deleteClient(id));
+        await dispatch(deleteDesign(id));
     }
     catch (error) {
         enqueueSnackbar(error, { variant: 'error' });
@@ -181,21 +184,20 @@ export default function UserListPage() {
 
   useEffect(() => {
     if(error){
-      enqueueSnackbar(error , {variant: 'error'}); 
+      enqueueSnackbar(error.message , {variant: 'error'}); 
     }
     if(isSuccess){
       enqueueSnackbar('Delete Success' , {variant:'success'}); 
-      dispatch(resetClient())
+      dispatch(resetDesign())
     }
-    console.log(error );
-    dispatch(getClients());
+    dispatch(getDesigns());
   }, [dispatch,isSuccess,error]);
 
   useEffect(() => {
-    if (clients?.length) {
-      setTableData(clients);
+    if (designs?.length) {
+      setTableData(designs);
     }
-  }, [clients]);
+  }, [designs]);
 
   const handleDeleteRows = (selectedRows) => {
     const deleteRows = tableData.filter((row) => !selectedRows.includes(row.id));
@@ -215,6 +217,9 @@ export default function UserListPage() {
   };
 
   const handleEditRow = (id) => {
+    navigate(PATH_DASHBOARD.design.edit(paramCase(id)));
+  };
+  const handleUserClick = (id) => {
     navigate(PATH_DASHBOARD.user.edit(paramCase(id)));
   };
 
@@ -227,25 +232,25 @@ export default function UserListPage() {
   return (
     <>
       <Helmet>
-        <title> User: List | Minimal UI</title>
+        <title> Design: List | Minimal UI</title>
       </Helmet>
 
       <Container maxWidth={themeStretch ? false : 'lg'}>
       <HeaderBreadcrumbs
-          heading="User List"
+          heading="Design List"
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'User', href: PATH_DASHBOARD.user.root },
+            { name: 'Design', href: PATH_DASHBOARD.design.list },
             { name: 'List' },
           ]}
           action={
             <Button
               variant="contained"
               component={RouterLink}
-              to={PATH_DASHBOARD.user.newUser}
+              to={PATH_DASHBOARD.design.newDesign}
               startIcon={<Iconify icon={'eva:plus-fill'} />}
             >
-              New User
+              New Design
             </Button>
           }
         />
@@ -266,7 +271,7 @@ export default function UserListPage() {
 
           <Divider />
 
-          <UserTableToolbar
+          <DesignTableToolbar
             isFiltered={isFiltered}
             filterName={filterName}
             filterRole={filterRole}
@@ -317,7 +322,7 @@ export default function UserListPage() {
                   {dataFiltered
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => (
-                      <UserTableRow
+                      <DesignTableRow
                         key={row._id}
                         row={row}
                         selected={selected.includes(row._id)}
@@ -392,7 +397,7 @@ function applyFilter({ inputData, comparator, filterName, filterStatus, filterRo
 
   if (filterName) {
     inputData = inputData.filter(
-      (user) => user.clientName.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 || user.clientId.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
+      (user) => user.designName.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 || user.designId.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
     );
   }
 
@@ -401,7 +406,7 @@ function applyFilter({ inputData, comparator, filterName, filterStatus, filterRo
   }
 
   if (filterRole !== 'all') {
-    inputData = inputData.filter((user) => user.clientName === filterRole);
+    inputData = inputData.filter((user) => user.client.clientName === filterRole);
   }
 
   return inputData;

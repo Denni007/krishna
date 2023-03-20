@@ -14,9 +14,9 @@ const ICON_SIZE = {
 
 const menuConfig = [
   {
-    title: 'Home',
+    title: 'User',
     icon: <Iconify icon={'eva:home-fill'} {...ICON_SIZE} />,
-    path: '/',
+    path: '/dashboard/user/list',
   },
   {
     title: 'Pages',
@@ -58,9 +58,9 @@ const menuConfig = [
     ],
   },
   {
-    title: 'Documentation',
+    title: 'Invoice',
     icon: <Iconify icon={'eva:book-open-fill'} {...ICON_SIZE} />,
-    path: PATH_DOCS,
+    path: '/dashboard/invoice',
   },
 ];
 

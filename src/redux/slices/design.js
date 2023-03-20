@@ -12,20 +12,13 @@ const initialState = {
   isLoading: false,
   isSuccess: false,
   error: null,
-  clients: [],
-  client: null,
-  sortBy: null,
-  filters: {
-    gender: [],
-    category: 'All',
-    colors: [],
-    priceRange: '',
-    rating: '',
-  }
+  designs: [],
+  design: null,
+  sortBy: null
 };
 
 const slice = createSlice({
-  name: 'client',
+  name: 'design',
   initialState,
   reducers: {
     // START LOADING
@@ -41,39 +34,41 @@ const slice = createSlice({
     },
 
     // GET PRODUCTS
-    getClientsSuccess(state, action) {
+    getDesignsSuccess(state, action) {
       state.isLoading = false;
-      state.clients = action.payload;
+      state.designs = action.payload;
       state.isSuccess = false;
+      state.error = null;
+
     },
 
     //  Create client
-    createClientSuccess(state, action) {
+    createDesignSuccess(state, action) {
       state.isLoading = false;
-      state.clients = state.clients.push(action.payload);
+      state.designs = state.designs.push(action.payload);
       state.isSuccess = true;
+      state.error = null;
+
     },
-    updateClientSuccess(state, action) {
+    updateDesignSuccess(state, action) {
       state.isLoading = false;
-      state.clients = state.clients.push(action.payload);
+      state.designs = state.designs.push(action.payload);
       state.isSuccess = true;
+      state.error = null;
+
     },
     // GET PRODUCT
-    getClientSuccess(state, action) {
+    getDesignSuccess(state, action) {
       state.isLoading = false;
-      state.client = action.payload;
+      state.design = action.payload;
     },
 
-    //  SORT & FILTER PRODUCTS
-    sortByProducts(state, action) {
-      state.sortBy = action.payload;
-    },
-    deleteClientSuccess(state, action) {
+    deleteDesignSuccess(state, action) {
       state.isLoading = false;
       state.isSuccess = true;
       const  user = action.payload;
-      const deleteClient = state.clients.filter((event) => event._id !== user._id);
-      state.clients = deleteClient;
+      const deleteDesign = state.designs.filter((event) => event._id !== user._id);
+      state.designs = deleteDesign;
     },
 
     filterProducts(state, action) {
@@ -83,12 +78,13 @@ const slice = createSlice({
       state.filters.priceRange = action.payload.priceRange;
       state.filters.rating = action.payload.rating;
     },
-    emptyClient(state) {
+    emptyDesign(state) {
      
       state.isLoading = false;
-      state.clients = null;
+      state.designs = [];
       state.isSuccess = false;
-      state.client = null;
+      state.design = null;
+      state.error = null;
     },
 
     // CHECKOUT
@@ -137,74 +133,6 @@ const slice = createSlice({
       state.checkout.cart = updateCart;
     },
 
-    resetCart(state) {
-      state.checkout.activeStep = 0;
-      state.checkout.cart = [];
-      state.checkout.total = 0;
-      state.checkout.subtotal = 0;
-      state.checkout.discount = 0;
-      state.checkout.shipping = 0;
-      state.checkout.billing = null;
-    },
-
-    onBackStep(state) {
-      state.checkout.activeStep -= 1;
-    },
-
-    onNextStep(state) {
-      state.checkout.activeStep += 1;
-    },
-
-    onGotoStep(state, action) {
-      const goToStep = action.payload;
-      state.checkout.activeStep = goToStep;
-    },
-
-    increaseQuantity(state, action) {
-      const productId = action.payload;
-      const updateCart = state.checkout.cart.map((product) => {
-        if (product.id === productId) {
-          return {
-            ...product,
-            quantity: product.quantity + 1,
-          };
-        }
-        return product;
-      });
-
-      state.checkout.cart = updateCart;
-    },
-
-    decreaseQuantity(state, action) {
-      const productId = action.payload;
-      const updateCart = state.checkout.cart.map((product) => {
-        if (product.id === productId) {
-          return {
-            ...product,
-            quantity: product.quantity - 1,
-          };
-        }
-        return product;
-      });
-
-      state.checkout.cart = updateCart;
-    },
-
-    createBilling(state, action) {
-      state.checkout.billing = action.payload;
-    },
-
-    applyDiscount(state, action) {
-      const discount = action.payload;
-      state.checkout.discount = discount;
-      state.checkout.total = state.checkout.subtotal - discount;
-    },
-
-    applyShipping(state, action) {
-      const shipping = action.payload;
-      state.checkout.shipping = shipping;
-      state.checkout.total = state.checkout.subtotal - state.checkout.discount + shipping;
-    },
   },
 });
 
@@ -231,12 +159,12 @@ export const {
 
 // ----------------------------------------------------------------------
 
-export function getClients() {
+export function getDesigns() {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/users');
-      dispatch(slice.actions.getClientsSuccess(response.data));
+      const response = await axios.get('/api/design');
+      dispatch(slice.actions.getDesignsSuccess(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
@@ -245,24 +173,24 @@ export function getClients() {
 
 // ----------------------------------------------------------------------
 
-export function getClient(name) {
+export function getDesign(name) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get(`/api/users/${name}`);
-      dispatch(slice.actions.getClientSuccess(response.data));
+      const response = await axios.get(`/api/design/${name}`);
+      dispatch(slice.actions.getDesignSuccess(response.data));
     } catch (error) {
       console.error(error);
       dispatch(slice.actions.hasError(error));
     }
   };
 }
-export function createClient(clientName,clientId, gst, phoneNumber,address) {
+export function createDesign(designName,designId, client, designRate) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.post(`/api/users/createClient`, { clientName,clientId, gst, phoneNumber,address});
-      dispatch(slice.actions.createClientSuccess(response.data));
+      const response = await axios.post(`/api/design/createDesign`, { designName,designId, client, designRate});
+      dispatch(slice.actions.createDesignSuccess(response.data));
     } catch (error) {
       console.error(error);
       dispatch(slice.actions.hasError(error));
@@ -270,24 +198,24 @@ export function createClient(clientName,clientId, gst, phoneNumber,address) {
   };
 }
 
-export function updateClient(data) {
+export function updateDesign(data) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.put(`/api/users/updateclient`, data);
-      dispatch(slice.actions.updateClientSuccess(response.data));
+      const response = await axios.put(`/api/design/updateDesign`, data);
+      dispatch(slice.actions.updateDesignSuccess(response.data));
     } catch (error) {
       console.error(error);
       dispatch(slice.actions.hasError(error));
     }
   };
 }
-export function deleteClient(id) {
+export function deleteDesign(id) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.delete(`/api/users/${id}`);
-      dispatch(slice.actions.deleteClientSuccess(response.data));
+      const response = await axios.delete(`/api/design/${id}`);
+      dispatch(slice.actions.deleteDesignSuccess(response.data));
     } catch (error) {
       console.error(error);
       dispatch(slice.actions.hasError(error));
@@ -296,10 +224,8 @@ export function deleteClient(id) {
   };
 }
 
-export function resetClient() {
+export function resetDesign() {
   return async () => {
-    dispatch(slice.actions.emptyClient());
-    
-    
+    await dispatch(slice.actions.emptyDesign());
   };
 }

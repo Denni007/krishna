@@ -28,11 +28,11 @@ export default function UserCreate() {
   const { loading, error, design  } = designDetail;
   const isEdit = pathname.includes('edit');
   const dispatch = useDispatch();
-  useEffect(() => {
+  // useEffect(() => {
    
-    dispatch(designDetails(name));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch]);
+  //   dispatch(designDetails(name));
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [dispatch]);
 
 
   return (
@@ -46,7 +46,7 @@ export default function UserCreate() {
             { name: !isEdit ? 'New Design' : capitalCase(name) },
           ]}
         />
- { !loading && <DesignNewForm isEdit={isEdit} currentDesign={design} />} 
+ <DesignNewForm />
 
         
       </Container>

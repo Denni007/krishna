@@ -95,7 +95,6 @@ export default function UserNewForm({ isEdit, currentUser }) {
       reset(defaultValues);
       dispatch({ type: USER_UPDATE_PROFILE_RESET });
       dispatch(resetClient());
-
       navigate(PATH_DASHBOARD.user.list);
     }
     if (isEdit && isSuccess) {

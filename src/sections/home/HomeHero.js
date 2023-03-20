@@ -87,19 +87,19 @@ export default function HomeHero() {
             <m.div variants={varFade().inRight}>
               <Typography variant="h1" sx={{ color: 'common.white' }}>
                 Start a <br />
-                new project <br /> with
+                krishna Fashion <br /> with
                 <Typography component="span" variant="h1" sx={{ color: 'primary.main' }}>
                   &nbsp;Minimal
                 </Typography>
               </Typography>
             </m.div>
 
-            <m.div variants={varFade().inRight}>
+            {/* <m.div variants={varFade().inRight}>
               <Typography sx={{ color: 'common.white' }}>
                 The starting point for your next project based on easy-to-customize MUI helps you build apps faster and
                 better.
               </Typography>
-            </m.div>
+            </m.div> */}
 
             <Stack spacing={2.5} alignItems="center" direction={{ xs: 'column', md: 'row' }}>
               <m.div variants={varFade().inRight}>
@@ -154,7 +154,7 @@ export default function HomeHero() {
                 size="large"
                 variant="contained"
                 component={RouterLink}
-                to={PATH_DASHBOARD.root}
+                to={PATH_DASHBOARD.user.list}
                 startIcon={<Iconify icon={'eva:flash-fill'} width={20} height={20} />}
               >
                 Live Preview

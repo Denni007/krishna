@@ -73,7 +73,7 @@ export const PATH_DASHBOARD = {
     root: path(ROOTS_DASHBOARD, '/design'),
     list: path(ROOTS_DASHBOARD, '/design/list'),
     newDesign: path(ROOTS_DASHBOARD, '/design/new'),
-    
+    edit: (id) => path(ROOTS_DASHBOARD, `/design/${id}/edit`),
     editById: path(ROOTS_DASHBOARD, `/design/reece-chung/edit`),
   },
   invoice: {

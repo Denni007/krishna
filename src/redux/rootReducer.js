@@ -12,6 +12,7 @@ import mailReducer from './slices/mail';
 import chatReducer from './slices/chat';
 import productReducer from './slices/product';
 import clientReducer from './slices/client';
+import designReducer from './slices/design';
 
 import calendarReducer from './slices/calendar';
 import kanbanReducer from './slices/kanban';
@@ -68,6 +69,7 @@ const rootReducer = combineReducers({
   invoiceDelete:invoiceDeleteReducer,
   invoiceDetail : invoiceDetailReducer,
   client:clientReducer,
+  design:designReducer,
   invoiceUpdate:invoiceUpdateReducer, 
   clientCreate : clientCreateReducer,
   clientDetail : clientDetailReducer,

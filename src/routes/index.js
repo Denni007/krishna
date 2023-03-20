@@ -104,9 +104,11 @@ export default function Router() {
           path: 'design',
           children: [
             { element: <Navigate to="/dashboard/user/profile" replace />, index: true },
-            { path: 'list', element: <DesignList /> },
+            { path: 'list', element: <DesignListPage /> },
+            { path: 'lists', element: <DesignList /> },
             { path: 'new', element: <DesignCreate /> },
-            { path: ':name/edit', element: <DesignCreate /> },
+            { path: ':id/edit', element: <DesignEdit /> },
+            // { path: ':name/edit', element: <DesignCreate /> },
           ],
         },
         {
@@ -233,6 +235,9 @@ const UserAccount = Loadable(lazy(() => import('../pages/dashboard/UserAccount')
 const UserCreate = Loadable(lazy(() => import('../pages/dashboard/UserCreate')));
 
 const DesignList = Loadable(lazy(() => import('../pages/dashboard/DesignList')));
+const DesignListPage = Loadable(lazy(() => import( '../pages/dashboard/DesignListPage')));
+const DesignEdit = Loadable(lazy(() => import('../pages/dashboard/DesignEdit')));
+
 const DesignCreate = Loadable(lazy(() => import('../pages/dashboard/DesignCreate')));
 
 

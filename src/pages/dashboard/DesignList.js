@@ -45,7 +45,6 @@ const TABLE_HEAD = [
   { id: 'designId', label: 'Design ID', alignRight: false },
   { id: 'client', label: 'Client Name', alignRight: false },
   { id: 'clientId', label: 'Client Id', alignRight: false },
-
   { id: 'designRate', label: 'Design Rate', alignRight: false },
   { id: '' },
 ];
@@ -65,7 +64,7 @@ export default function UserList() {
   const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const designDelete = useSelector((state) => state.designDelete);
   const {
     loading: loadingDelete,
