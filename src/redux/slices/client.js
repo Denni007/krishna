@@ -82,6 +82,13 @@ const slice = createSlice({
       state.filters.priceRange = action.payload.priceRange;
       state.filters.rating = action.payload.rating;
     },
+    emptyClient(state) {
+     
+      state.isLoading = false;
+      state.clients = null;
+      state.isSuccess = false;
+      state.client = null;
+    },
 
     // CHECKOUT
     getCart(state, action) {
@@ -284,6 +291,14 @@ export function deleteClient(id) {
       console.error(error);
       dispatch(slice.actions.hasError(error));
     }
+    
+  };
+}
+
+export function resetClient() {
+  return async () => {
+    dispatch(slice.actions.emptyClient());
+    
     
   };
 }

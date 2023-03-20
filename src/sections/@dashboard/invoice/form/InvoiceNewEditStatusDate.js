@@ -44,7 +44,7 @@ export default function InvoiceNewEditStatusDate() {
       sx={{ p: 3, bgcolor: 'background.neutral' }}
     >
       <RHFTextField
-        disabled
+        
         name="invoiceNo"
         label="Invoice number"
         value={values.invoiceNo}

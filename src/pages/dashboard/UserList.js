@@ -107,7 +107,7 @@ export default function UserList() {
     }
     //  dispatch(listUsers());
     dispatch(getClients());
-  }, [dispatch , successDelete,  ]);
+  }, [dispatch , successDelete  ]);
 
   useEffect(() => {
     if (clients.length) {

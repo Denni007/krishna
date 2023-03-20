@@ -62,7 +62,7 @@ export default function InvoicePDF({ invoice }) {
           </View>
           <View style={{ alignItems: 'flex-end', flexDirection: 'column' }}>
             <Text style={styles.h3}>Bill No:  {`${invoiceNo}`}</Text>
-            <Text> {status} </Text>
+            <Text style={styles.h3}>Bill Date: {`${fDate(invoiceDate)}`}</Text>
           </View>
         </View>
         {/* <View style={[styles.gridContainer, styles.mb40]}>
@@ -226,7 +226,7 @@ export default function InvoicePDF({ invoice }) {
           <View style={styles.col8}>
             <Text style={styles.subtitle2}>NOTES</Text>
             <Text>
-            {toWords.convert(fCurrency(invoiceAmount), { currency: true }).toUpperCase()}
+            {toWords.convert(invoiceAmount, { currency: true }).toUpperCase()}
             </Text>
           </View>
          
@@ -240,7 +240,7 @@ export default function InvoicePDF({ invoice }) {
             </Text>
           </View>
           <View style={[styles.col4, styles.alignRight]}>
-            <Text style={styles.subtitle2}>For, Mr.Jayeshbhai Mulsaniya</Text>
+            <Text style={styles.subtitle2}>For, Mr.Krishna Fashion</Text>
             <Text> {'\n'}</Text>
             <Text style={styles.subtitle2}>Authorized Sign</Text>
 

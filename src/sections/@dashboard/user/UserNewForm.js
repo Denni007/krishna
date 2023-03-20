@@ -20,7 +20,7 @@ import { countries } from '../../../_mock';
 // components
 import Label from '../../../components/Label';
 import { FormProvider, RHFSelect, RHFSwitch, RHFTextField, RHFUploadAvatar } from '../../../components/hook-form';
-import { createClient, updateClient } from '../../../redux/slices/client';
+import { createClient, resetClient, updateClient } from '../../../redux/slices/client';
 import { USER_UPDATE_PROFILE_RESET, USER_UPDATE_RESET } from '../../../constants/userConstants';
 
 // ----------------------------------------------------------------------
@@ -94,11 +94,14 @@ export default function UserNewForm({ isEdit, currentUser }) {
       enqueueSnackbar('Client Create',{variant:'success'} ); 
       reset(defaultValues);
       dispatch({ type: USER_UPDATE_PROFILE_RESET });
+      dispatch(resetClient());
+
       navigate(PATH_DASHBOARD.user.list);
     }
     if (isEdit && isSuccess) {
       enqueueSnackbar('Client Updated',{variant:'success'} ); 
       dispatch({ type: USER_UPDATE_PROFILE_RESET });
+      dispatch(resetClient());
       navigate(PATH_DASHBOARD.user.list);
     }
     if (!isEdit && error) {

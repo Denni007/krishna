@@ -42,7 +42,7 @@ import {
 } from '../../components/table';
 // sections
 import { UserTableToolbar, UserTableRow } from '../../sections/@dashboard/user/list';
-import { deleteClient, getClients } from '../../redux/slices/client';
+import { deleteClient, getClients, resetClient } from '../../redux/slices/client';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 
 // ----------------------------------------------------------------------
@@ -118,6 +118,7 @@ export default function UserListPage() {
   });
 
   const dataInPage = dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const roleOption = (!dataFiltered.length ? ROLE_OPTIONS: dataFiltered.map((data) => data.clientName));
 
   const denseHeight = dense ? 52 : 72;
 
@@ -184,12 +185,13 @@ export default function UserListPage() {
     }
     if(isSuccess){
       enqueueSnackbar('Delete Success' , {variant:'success'}); 
+      dispatch(resetClient())
     }
     dispatch(getClients());
-  }, [dispatch  ,error]);
+  }, [dispatch  ,error,isSuccess]);
 
   useEffect(() => {
-    if (clients.length) {
+    if (clients?.length) {
       setTableData(clients);
     }
   }, [clients]);
@@ -267,7 +269,7 @@ export default function UserListPage() {
             isFiltered={isFiltered}
             filterName={filterName}
             filterRole={filterRole}
-            optionsRole={ROLE_OPTIONS}
+            optionsRole={roleOption}
             onFilterName={handleFilterName}
             onFilterRole={handleFilterRole}
             onResetFilter={handleResetFilter}
@@ -389,7 +391,7 @@ function applyFilter({ inputData, comparator, filterName, filterStatus, filterRo
 
   if (filterName) {
     inputData = inputData.filter(
-      (user) => user.clientName.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
+      (user) => user.clientName.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 || user.clientId.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
     );
   }
 
@@ -398,7 +400,7 @@ function applyFilter({ inputData, comparator, filterName, filterStatus, filterRo
   }
 
   if (filterRole !== 'all') {
-    inputData = inputData.filter((user) => user.role === filterRole);
+    inputData = inputData.filter((user) => user.clientName === filterRole);
   }
 
   return inputData;

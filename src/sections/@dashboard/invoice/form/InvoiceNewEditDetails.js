@@ -134,6 +134,7 @@ export default function InvoiceNewEditDetails() {
         `items[${index}].total`,
         values.items.map((item) => ((item.quantity - item.short - item.plain) * item.price))[index]
       );
+      
     },
     [setValue, values.items]
   );
